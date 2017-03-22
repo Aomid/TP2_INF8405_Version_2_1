@@ -96,7 +96,7 @@ public class Meeting_setup extends FragmentActivity
     Location mLastKnownLocation;
     Marker mCurrLocationMarker;
     boolean mLocationPermissionGranted;
-
+    private String UserName;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -144,6 +144,7 @@ public class Meeting_setup extends FragmentActivity
             value = extras.getString("username");
         }
         Username.setText("Welcome " + value);
+        UserName=value;
         picture = extras.getString("picture");
         byte[] decodedByteArray = android.util.Base64.decode(picture, Base64.DEFAULT);
         Bitmap bit = BitmapFactory.decodeByteArray(decodedByteArray, 0, decodedByteArray.length);
@@ -438,12 +439,37 @@ public class Meeting_setup extends FragmentActivity
                 .position(latLng)
                 .draggable(true)
                 .title("Your location"));
-        saveUserLocation(latitude,longitude);
+        saveCurrentUserLocation(latitude,longitude);
     }
-
-    public void saveUserLocation(double latitude, double longitude)
+//this method updates Latitude and Longitude of users in Database when they login
+    public void saveCurrentUserLocation(final double latitude, final double longitude)
     {
 
+        final DatabaseReference update= FirebaseDatabase.getInstance().getReference("Users");
+        update.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String tempUsername;
+                int i=(int) dataSnapshot.getChildrenCount();
+                for(DataSnapshot dsp: dataSnapshot.getChildren())
+                {
+                    dsp.getKey();
+                    tempUsername=String.valueOf(dsp.child("emailString").getValue());
+                    if(tempUsername.equalsIgnoreCase(UserName))
+                    {
+                        String temp=update.getKey();
+                        dsp.getRef().child("latitude").setValue(latitude);
+                        dsp.getRef().child("longitude").setValue(longitude);
+                        break;
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Toast.makeText(Meeting_setup.this, "There is a error in update", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
 
