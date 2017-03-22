@@ -1,10 +1,13 @@
 package com.example.abbas.tp2_inf8405_version_2_1;
 
 import android.app.Dialog;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -21,6 +24,8 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.google.android.gms.maps.GoogleMap;
+
 
 import com.firebase.client.Firebase;
 import com.firebase.client.annotations.NotNull;
@@ -66,17 +71,17 @@ public class Meeting_setup extends FragmentActivity
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         GoogleMap.OnMapLongClickListener,
-GoogleMap.OnMarkerDragListener,
-GoogleMap.OnMarkerClickListener,
+        GoogleMap.OnMarkerDragListener,
+        GoogleMap.OnMarkerClickListener,
         Observer {
-//8888888888888888888888888
-private static final String TAG = "MapsActivity";
-    private GoogleMap mMap;
+    //8888888888888888888888888
+    private static final String TAG = "Meeting Setup";
+    private GoogleMap map;
     private double longitude;
     private double latitude;
     private GoogleApiClient googleApiClient;
     //8888888888888888888888
- //   private static final String TAG = "";
+    //   private static final String TAG = "";
     private static final float DEFAULT_ZOOM = 2;
     private static String groupName;
     final int SELECT_PHOTO = 1;
@@ -85,7 +90,7 @@ private static final String TAG = "MapsActivity";
     EditText meetingName;
     LocationRequest mLocationRequest;
     ListView scheduledMeetingsList;
-    GoogleMap map;
+    //    GoogleMap map;
     private GoogleApiClient mGoogleApiClient;
     Location mLastLocation;
     Location mLastKnownLocation;
@@ -95,16 +100,30 @@ private static final String TAG = "MapsActivity";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
-        googleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
-
         setContentView(R.layout.activity_meeting_setup);
 
+
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+        if(mapFragment==null)
+            Toast.makeText(getApplicationContext(),"MapFragment is null!!!", Toast.LENGTH_LONG).show();
+        if (mGoogleApiClient == null) {
+            mGoogleApiClient = new GoogleApiClient.Builder(this)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .build();
+        }
+
+        GpsTracker gps = new GpsTracker(this);
+        if (gps.canGetLocation) {
+            latitude = gps.getLatitude();
+            longitude = gps.getLongitude();
+            Toast.makeText(this, "Longitude = " + (String.valueOf(longitude) + " Latitude= " + (String.valueOf(latitude))), Toast.LENGTH_LONG).show();
+
+
+        }
         if (googleServiceAvailable()) {
             Toast.makeText(this, "Google service is ok!!!", Toast.LENGTH_LONG).show();
             //  initMap();
@@ -135,46 +154,32 @@ private static final String TAG = "MapsActivity";
 
     //888888888888888888888888888
     private void getCurrentLocation() {
-        mMap.clear();
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        Location location = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
-        if (location != null) {
-            //Getting longitude and latitude
-            longitude = location.getLongitude();
-            latitude = location.getLatitude();
 
-            //moving the map to location
-            moveMap();
-        }
     }
+
     private void moveMap() {
         /**
          * Creating the latlng object to store lat, long coordinates
          * adding marker to map
          * move the camera with animation
          */
-        LatLng latLng = new LatLng(latitude, longitude);
-        mMap.addMarker(new MarkerOptions()
+        int i, j;
+        i = (int) latitude;
+        j = (int) longitude;
+        LatLng latLng = new LatLng(longitude, latitude);
+        map.addMarker(new MarkerOptions()
                 .position(latLng)
                 .draggable(true)
                 .title("Marker in India"));
 
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
-        mMap.getUiSettings().setZoomControlsEnabled(true);
+        map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+        map.animateCamera(CameraUpdateFactory.zoomTo(15));
+        map.getUiSettings().setZoomControlsEnabled(true);
 
 
     }
-//888888888888888888888888888888
+
+    //888888888888888888888888888888
     private void initMap() {
 
     }
@@ -236,33 +241,33 @@ private static final String TAG = "MapsActivity";
         });
     }
 
-/*    public void CreateMeeting()
-    {
-        ShowUserPositionsOnMap();
-    }
-    // Show the users positions on the map
-    void ShowUserPositionsOnMap() {
-  //      map.clear();
- //       LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
-        /*Group currentGroup = DataManager.getInstance().getCurrentGroup();
-        List<UserProfile> groupMembers = currentGroup.getGroupMembers();
-        if (groupMembers != null) {
-            for (UserProfile u : groupMembers) {
-                MarkerOptions markerOptions = new MarkerOptions().position(new LatLng(u.getLatitude(), u.getLongitude()))
-                        .title(u.getUsername())
-                        .snippet(u.getUsername());
-                map.addMarker(markerOptions);
-            }
+    /*    public void CreateMeeting()
+        {
+            ShowUserPositionsOnMap();
+        }
+        // Show the users positions on the map
+        void ShowUserPositionsOnMap() {
+      //      map.clear();
+     //       LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
+            /*Group currentGroup = DataManager.getInstance().getCurrentGroup();
+            List<UserProfile> groupMembers = currentGroup.getGroupMembers();
+            if (groupMembers != null) {
+                for (UserProfile u : groupMembers) {
+                    MarkerOptions markerOptions = new MarkerOptions().position(new LatLng(u.getLatitude(), u.getLongitude()))
+                            .title(u.getUsername())
+                            .snippet(u.getUsername());
+                    map.addMarker(markerOptions);
+                }
 
-            LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
-            for (UserProfile u : groupMembers) {
-                MarkerOptions markerOptions = new MarkerOptions().position(new LatLng(u.getLatitude(), u.getLongitude()))
-                        .title(u.getUsername())
-                        .snippet(u.getUsername());
-                map.addMarker(markerOptions);
-                boundsBuilder.include(new LatLng(u.getLatitude(), u.getLongitude()));
-            }
-            */
+                LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
+                for (UserProfile u : groupMembers) {
+                    MarkerOptions markerOptions = new MarkerOptions().position(new LatLng(u.getLatitude(), u.getLongitude()))
+                            .title(u.getUsername())
+                            .snippet(u.getUsername());
+                    map.addMarker(markerOptions);
+                    boundsBuilder.include(new LatLng(u.getLatitude(), u.getLongitude()));
+                }
+                */
     // Bounds the map around the users positions
  /*           try {
                 LatLngBounds bounds = boundsBuilder.build();
@@ -277,10 +282,10 @@ private static final String TAG = "MapsActivity";
         }
 */
 //77777777777777777777777777777777777
-@Override
-public void onMarkerDragStart(Marker marker) {
-    Toast.makeText(Meeting_setup.this, "onMarkerDragStart", Toast.LENGTH_SHORT).show();
-}
+    @Override
+    public void onMarkerDragStart(Marker marker) {
+        Toast.makeText(Meeting_setup.this, "onMarkerDragStart", Toast.LENGTH_SHORT).show();
+    }
 
     @Override
     public void onMarkerDrag(Marker marker) {
@@ -290,8 +295,8 @@ public void onMarkerDragStart(Marker marker) {
     @Override
     public void onMarkerDragEnd(Marker marker) {
         // getting the Co-ordinates
-        latitude = marker.getPosition().latitude;
-        longitude = marker.getPosition().longitude;
+        //  latitude = marker.getPosition().latitude;
+        //  longitude = marker.getPosition().longitude;
 
         //move to current position
         moveMap();
@@ -299,13 +304,13 @@ public void onMarkerDragStart(Marker marker) {
 
     @Override
     protected void onStart() {
-        googleApiClient.connect();
+        mGoogleApiClient.connect();
         super.onStart();
     }
 
     @Override
     protected void onStop() {
-        googleApiClient.disconnect();
+        mGoogleApiClient.disconnect();
         super.onStop();
     }
 
@@ -315,18 +320,84 @@ public void onMarkerDragStart(Marker marker) {
         Toast.makeText(Meeting_setup.this, "onMarkerClick", Toast.LENGTH_SHORT).show();
         return true;
     }
+
     @Override
     public void onMapLongClick(LatLng latLng) {
         // mMap.clear();
-        mMap.addMarker(new MarkerOptions().position(latLng).draggable(true));
+        map.addMarker(new MarkerOptions().position(latLng).draggable(true));
     }
+
+    protected void createLocationRequest() {
+        LocationRequest mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(10000);
+        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    }
+
     //77777777777777777777777777777777777777
     @Override
-    public void onConnected(Bundle connectionHint){//@NotNull Bundle bundle) {
+    public void onConnected(Bundle connectionHint) {//@NotNull Bundle bundle) {
 
-       getCurrentLocation();
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(60000);
+        mLocationRequest.setFastestInterval(5000);
+        LocationServices.FusedLocationApi.requestLocationUpdates(
+                mGoogleApiClient, mLocationRequest, this);
+
+        mLastKnownLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        if (mLastLocation != null) {
+            String x, y;
+            x = (String.valueOf(mLastLocation.getLatitude()));
+            y = (String.valueOf(mLastLocation.getLongitude()));
+            Toast.makeText(getApplicationContext(), "Location= " + x + "  " + y, Toast.LENGTH_LONG).show();
+        } else setupMap();
     }
 
+    public void setupMap() {
+        // Do a null check to confirm that we have not already instantiated the map.
+        if (map == null) {
+            // Try to obtain the map from the SupportMapFragment.
+            //map = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map));
+
+            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
+            }
+            map.setMyLocationEnabled(true);
+            // Check if we were successful in obtaining the map.
+            if (map != null) {
+
+
+                map.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
+
+                    @Override
+                    public void onMyLocationChange(Location arg0) {
+                        // TODO Auto-generated method stub
+
+                        map.addMarker(new MarkerOptions().position(new LatLng(arg0.getLatitude(), arg0.getLongitude())).title("It's Me!"));
+                    }
+                });
+
+            }
+        }
+    }
     @Override
     public void onConnectionSuspended(int i) {
 
@@ -344,8 +415,34 @@ public void onMarkerDragStart(Marker marker) {
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-       map = googleMap;
+        map = googleMap;
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        setupMap();
+        //45.498838, -73.616995
+        map.setMyLocationEnabled(true);
+//        googleMap.setMyLocationEnabled(true);
+//        Location myLocation = googleMap.getMyLocation();  //Nullpointer exception.........
+//        LatLng myLatLng = new LatLng(myLocation.getLatitude(),
+//                myLocation.getLongitude());
+        LatLng latLng = new LatLng(latitude, longitude);
+        map.addMarker(new MarkerOptions()
+                .position(latLng)
+                .draggable(true)
+                .title("Your location"));
+        saveUserLocation(latitude,longitude);
+    }
 
+    public void saveUserLocation(double latitude, double longitude)
+    {
 
     }
 
