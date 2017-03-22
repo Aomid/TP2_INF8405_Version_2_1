@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="@dimen/activity_horizontal_margin"
+    android:orientation="vertical"
+    android:background="@color/colorPrimary"
+    tools:context="com.example.abbas.tp2_inf8405_version_2_1.MainActivity">
+
+    ---Credentials
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_weight="1">
+            <EditText
+                android:id="@+id/email"
+                android:hint="Email"
+                android:textColor="@color/white"
+                android:textColorHint="@color/light_grey"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <EditText
+                android:id="@+id/pass"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Password"
+                android:inputType="textPassword"
+                android:textColor="@color/white"
+                android:textColorHint="@color/light_grey" />
+        </LinearLayout>
+        ---LoginButton
+        <Button
+            android:id="@+id/login_button"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="Login"
+            android:textColor="@color/white"
+            android:background="@drawable/button_border"/>
+    </LinearLayout>
+
+    <Space
+        android:layout_width="1dp"
+        android:layout_height="30dp"/>
+
+    ---Signin options
+    <LinearLayout
+        android:id="@+id/signin_options"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/layout_border"
+        android:padding="10dp">
+        ---Groups selection
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:weightSum="1">
+
+            <ImageView
+                android:id="@+id/profilePicture"
+                android:layout_width="151dp"
+                android:layout_height="128dp"
+                android:adjustViewBounds="false"
+                android:cropToPadding="false"
+                android:maxHeight="100dp"
+                android:maxWidth="100dp"
+                android:minHeight="100dp"
+                android:minWidth="100dp"
+                android:padding="3dp"
+                android:scaleType="fitXY"
+                app:srcCompat="@mipmap/userprofiledefaul" />
+
+            <Button
+                android:id="@+id/set_profile_picture_button"
+                android:layout_width="114dp"
+                android:layout_height="100dp"
+                android:layout_gravity="center"
+                android:background="@drawable/button_border"
+                android:text="Set Profile picture"
+                android:textColor="@color/white" />
+        </LinearLayout>
+
+        <Space
+            android:layout_width="1dp"
+            android:layout_height="20dp"/>
+
+        ---Meeting places selection
+
+        <Space
+            android:layout_width="1dp"
+            android:layout_height="20dp"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+            </LinearLayout>
+
+        </LinearLayout>
+        <Space
+            android:layout_width="1dp"
+            android:layout_height="20dp"/>
+
+        <Button
+            android:id="@+id/signup_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button_border_2"
+            android:text="Signup"
+            android:textColor="@color/white" />
+    </LinearLayout>
+</LinearLayout>
