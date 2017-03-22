@@ -1,7 +1,10 @@
 package com.example.abbas.tp2_inf8405_version_2_1;
 
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -78,6 +81,9 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        RessourceMonitor.getInstance();
+        Intent batteryStatus=registerReceiver(RessourceMonitor.getInstance(), new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+
         email = (EditText) findViewById(R.id.email);
         password = (EditText) findViewById(R.id.pass);
         loginButton = (Button) findViewById(R.id.login_button);
@@ -405,5 +411,34 @@ public class MainActivity extends AppCompatActivity {
 
     public Object getCurrentGroup() {
         return this.getCurrentGroup();
+    }
+    @Override
+    public void onBackPressed() {
+        String batteryLevelMessage =
+                new String("Battery usage : " + String.valueOf(RessourceMonitor.getInstance().GetTotalBatteryUsage()));
+        ShowBatteryUsage("Application battery usage", batteryLevelMessage, true);
+    }
+
+
+
+    void ShowBatteryUsage(String title, String message, boolean leavePage) {
+        final boolean leave = leavePage;
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+
+        builder.setTitle(title);
+        builder.setMessage(message);
+        builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                if (leave) finish();
+            }
+        });
+        if(leave)
+            builder.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    // do nothing
+                }
+            });
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 }
