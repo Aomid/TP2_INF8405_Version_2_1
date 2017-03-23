@@ -1,7 +1,10 @@
 package com.example.abbas.tp2_inf8405_version_2_1;
 
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -9,14 +12,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.support.annotation.StringDef;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
+
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -78,6 +80,9 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        RessourceMonitor.getInstance();
+        Intent batteryStatus=registerReceiver(RessourceMonitor.getInstance(), new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+
         email = (EditText) findViewById(R.id.email);
         password = (EditText) findViewById(R.id.pass);
         loginButton = (Button) findViewById(R.id.login_button);
@@ -88,77 +93,26 @@ public class MainActivity extends AppCompatActivity {
         Firebase.setAndroidContext(this);
 
 
-        loginButton.setEnabled(false);
+        /*loginButton.setEnabled(false);
         signupButton.setEnabled(false);
-        setProfilePicButton.setEnabled(false);
+        setProfilePicButton.setEnabled(false);*/
 
 
         //profilePicture.setVisibility(View.GONE);
 
-        email.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (email.length() > 2 && password.length() > 2) {
-                    loginButton.setEnabled(true);
-                    signupButton.setEnabled(true);
-                    setProfilePicButton.setEnabled(true);
-                } else {
-                    loginButton.setEnabled(false);
-                    signupButton.setEnabled(false);
-                    setProfilePicButton.setEnabled(false);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                emaildefault = email.getText().toString();
-            }
-        });
-
-        password.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (password.length() > 2 && email.length() > 2) {
-                    loginButton.setEnabled(true);
-                    signupButton.setEnabled(true);
-                    setProfilePicButton.setEnabled(true);
-                } else {
-                    loginButton.setEnabled(false);
-                    signupButton.setEnabled(false);
-                    setProfilePicButton.setEnabled(false);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                Login();
+                if (password.length() > 2 && email.length() > 2)
+                    Login();
             }
         });
-
-
 
         signupButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                if (password.length() > 2 && email.length() > 2)
                    Signup();
             }
         });
@@ -168,11 +122,13 @@ public class MainActivity extends AppCompatActivity {
         setProfilePicButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), "Camera is started", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                f = Uri.fromFile(getMediaFile());
-                intent.putExtra(MediaStore.EXTRA_OUTPUT, f);
-                startActivityForResult(intent, 1);
+                if (password.length() > 2 && email.length() > 2) {
+                    Toast.makeText(getApplicationContext(), "Camera is started", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    f = Uri.fromFile(getMediaFile());
+                    intent.putExtra(MediaStore.EXTRA_OUTPUT, f);
+                    startActivityForResult(intent, 1);
+                }
             }
         });
     }
@@ -321,8 +277,9 @@ public class MainActivity extends AppCompatActivity {
     public void sendResOfUserPass()
     {
         String UserName=email.getText().toString();
-        Toast.makeText(getApplicationContext(),"Username and password is correct",Toast.LENGTH_LONG).show();
-        Intent intent=new Intent(getApplicationContext(),Meeting_setup.class);
+        //Toast.makeText(getApplicationContext(),"Username and password is correct",Toast.LENGTH_LONG).show();
+        UserProfile.setINSTANCE(new User(UserName,profileImageOnString));
+        Intent intent=new Intent(getApplicationContext(),Group_Choice_Activity.class);
         intent.putExtra("username",UserName);
         intent.putExtra("picture",profileImageOnString);
 
@@ -357,7 +314,7 @@ public class MainActivity extends AppCompatActivity {
        // myRef.child("users/profileImage").push().setValue(imageBinaryFile);
 
         String ID=addUser.push().getKey();
-        users user=new users(emailString,passString,imageBinaryFile);
+        User user=new User(emailString,passString,imageBinaryFile);
         addUser.child(ID).setValue(user);
 
         //addUser.push().child("password").setValue(passString);
@@ -405,5 +362,34 @@ public class MainActivity extends AppCompatActivity {
 
     public Object getCurrentGroup() {
         return this.getCurrentGroup();
+    }
+    @Override
+    public void onBackPressed() {
+        String batteryLevelMessage =
+                new String("Battery usage : " + String.valueOf(RessourceMonitor.getInstance().GetTotalBatteryUsage()));
+        ShowBatteryUsage("Application battery usage", batteryLevelMessage, true);
+    }
+
+
+
+    void ShowBatteryUsage(String title, String message, boolean leavePage) {
+        final boolean leave = leavePage;
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+
+        builder.setTitle(title);
+        builder.setMessage(message);
+        builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                if (leave) finish();
+            }
+        });
+        if(leave)
+            builder.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    // do nothing
+                }
+            });
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 }

@@ -5,4 +5,14 @@ package com.example.abbas.tp2_inf8405_version_2_1;
  */
 
 public class UserProfile {
+
+    private static User INSTANCE = null;
+
+    public static User getInstance()
+    {	return INSTANCE;
+    }
+
+    public static void setINSTANCE(User INSTANCE) {
+        UserProfile.INSTANCE = INSTANCE;
+    }
 }

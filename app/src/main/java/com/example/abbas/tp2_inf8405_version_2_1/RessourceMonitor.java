@@ -1,5 +1,6 @@
 package com.example.abbas.tp2_inf8405_version_2_1;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -10,7 +11,7 @@ import android.os.BatteryManager;
  * This classes monitors the battery usage for all the application and for some actions
  */
 
-public class RessourceMonitor {
+public class RessourceMonitor extends BroadcastReceiver {
     static private RessourceMonitor mInstance = null;
     private float lastBatteryLevel;
     private Float initialBatteryLevel;

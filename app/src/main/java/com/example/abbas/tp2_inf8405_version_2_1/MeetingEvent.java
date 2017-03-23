@@ -2,10 +2,11 @@ package com.example.abbas.tp2_inf8405_version_2_1;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.firebase.database.IgnoreExtraProperties;
 
 import java.io.ByteArrayOutputStream;
+import java.lang.reflect.Member;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -15,13 +16,26 @@ import java.util.Observable;
  * Created by Abbas on 3/19/2017.
  */
 
-public class MeetingEvent extends Observable {
-    String meetingName;
-    String description;
-    String encodedPhoto;
-    List<EventPlace> Places = new ArrayList<EventPlace>();
-    EventPlace FinalPlace = null;
-    Calendar date;
+@IgnoreExtraProperties
+class MeetingEvent extends Observable {
+
+
+
+    private String meetingName;
+    private String description;
+    private String encodedPhoto;
+    private List<EventPlace> Places = new ArrayList<EventPlace>();
+    private List<User> members = new ArrayList<User>();
+    private EventPlace FinalPlace = null;
+    private Calendar date;
+
+
+    public MeetingEvent (){
+    }
+
+    public MeetingEvent(String name){
+        meetingName = name;
+    }
 
     @JsonIgnore
     public void setDecodedPhoto(Bitmap image){
@@ -87,6 +101,22 @@ public class MeetingEvent extends Observable {
     public void ConfirmEvent(){
 
     }
+
+    public String getMeetingName() {
+        return meetingName;
+    }
+
+    public String print() {
+        return "Meeting Name = "+ meetingName;
+    }
+
+    public void addMember(User instance) {
+        if(!members.contains(instance))
+            members.add(instance);
+    }
+
+
+
 }
 
 
