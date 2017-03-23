@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">TP2_INF8405_Version_2_1</string>
+    <string name="title_activity_meeting_setup">meeting_setup</string>
+    <string name="title_activity_meeting__setup">Meeting_Setup</string>
+<<<<<<< HEAD
+    <string name="google_maps_api_key">AIzaSyAfxpg_fmOQhZkk14jn8x4Do3DBOUap6wo </string>
+    <string name="title_activity_group__choice_">Group_Choice_Activity</string>
+    <string name="place_image">Place View</string>
+    <string name="description">description</string>
+    <string name="place_name">Place Name</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+=======
+    <string name="google_maps_api_key">AIzaSyAfxpg_fmOQhZkk14jn8x4Do3DBOUap6wo </string>	
+>>>>>>> master-2
+</resources>
