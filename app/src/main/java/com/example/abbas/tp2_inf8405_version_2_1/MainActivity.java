@@ -13,12 +13,8 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Base64;
-import android.util.Log;
 import android.view.View;
-
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -26,54 +22,56 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import com.firebase.client.*;
-import com.firebase.client.core.Context;
-import com.firebase.client.core.Tag;
-import com.google.firebase.database.*;
+import com.firebase.client.Firebase;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.firebase_core.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.security.Key;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
-import java.util.Dictionary;
-import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-
-import static android.R.attr.bitmap;
-import static android.R.attr.key;
-import static android.R.attr.singleUser;
-import static android.R.attr.value;
-
-import android.graphics.Bitmap;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Uri f;
-    private ImageButton imagebutton;
     private static  MainActivity instance=null;
     private static String emaildefault = null;
     private static boolean userPassOK=false;
     private static EditText email;
     private static EditText password;
     private static Boolean userExist=false;
-
-    private Bitmap bitmap;
     private static String profileImageOnString;
+    DatabaseReference myRef = FirebaseDatabase.getInstance().getReference();
+    String imageBinaryFile;
+    private Uri f;
+    private ImageButton imagebutton;
+    private Bitmap bitmap;
     private Button loginButton, signupButton, setProfilePicButton;
     private ImageView profilePicture;
     private LinearLayout signinOptions;
 
-    DatabaseReference myRef=FirebaseDatabase.getInstance().getReference();
+    private static File getMediaFile() {
+        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES), "INF8405");
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        if (email.getText() != null) {
+            return new File(mediaStorageDir.getPath() + File.separator + email.getText() + ".jpg");
+        } else
+            return new File(mediaStorageDir.getPath() + File.separator +
+                    "IMG_" + timeStamp + ".jpg");
+    }
+
+    public static MainActivity getInstance() {
+        if (instance == null)
+            instance = new MainActivity();
+
+        return instance;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,18 +131,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private static File getMediaFile() {
-        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES), "INF8405");
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        if (email.getText() != null) {
-            return new File(mediaStorageDir.getPath() + File.separator + email.getText() + ".jpg");
-        } else
-            return new File(mediaStorageDir.getPath() + File.separator +
-                    "IMG_" + timeStamp + ".jpg");
-    }
-
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, final Intent imageReturned) {
         super.onActivityResult(requestCode, resultCode, imageReturned);
@@ -157,6 +143,7 @@ public class MainActivity extends AppCompatActivity {
         image.setImageURI(f);
         image.setRotation(-90);
     }
+
     private void Login()
     {
 
@@ -165,7 +152,6 @@ public class MainActivity extends AppCompatActivity {
         String passString =password.getText().toString();
         checkUserExistance("login");
     }
-
 
     private void Signup()
     {
@@ -264,6 +250,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
+
     public void loadProfileImageTest()
     {
         Bitmap bit;
@@ -274,6 +261,7 @@ public class MainActivity extends AppCompatActivity {
         image.setImageBitmap(bit);
 
     }
+
     public void sendResOfUserPass()
     {
         String UserName=email.getText().toString();
@@ -290,7 +278,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
-    String imageBinaryFile;
+
     public void addNewUser()
     {
         final String emailString=email.getText().toString();
@@ -353,12 +341,6 @@ public class MainActivity extends AppCompatActivity {
         }
         return res;
     }
-    public static MainActivity getInstance(){
-        if(instance == null)
-            instance = new MainActivity();
-
-        return instance;
-    }
 
     public Object getCurrentGroup() {
         return this.getCurrentGroup();
@@ -392,4 +374,6 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog dialog = builder.create();
         dialog.show();
     }
+
+
 }

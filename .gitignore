@@ -16,3 +16,5 @@ app/src/main/java/com/example/*
 !/app/src/main/java/com/example/abbas/tp2_inf8405_version_2_1/
 !/app/src/main/AndroidManifest.xml
 !/app/src/main/res/
+!/build.gradle
+!/app/build.gradle
