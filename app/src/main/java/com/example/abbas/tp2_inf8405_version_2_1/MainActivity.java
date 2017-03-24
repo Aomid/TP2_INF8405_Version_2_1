@@ -134,14 +134,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, final Intent imageReturned) {
         super.onActivityResult(requestCode, resultCode, imageReturned);
+        super.onActivityResult(requestCode, resultCode, imageReturned);
         String path = f.toString();
-        Bundle extras=imageReturned.getExtras();
-        bitmap=(Bitmap)extras.get("imageReturned");
 
         ImageView image = (ImageView) findViewById(R.id.profilePicture);
         image.setImageBitmap(BitmapFactory.decodeFile(path));
         image.setImageURI(f);
         image.setRotation(-90);
+
     }
 
     private void Login()
