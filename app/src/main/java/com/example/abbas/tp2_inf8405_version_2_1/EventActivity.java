@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -46,6 +47,7 @@ public class EventActivity extends AppCompatActivity
     Location mLastLocation,mLastKnownLocation;
     LocationRequest mLocationRequest;
     private GoogleMap map;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,10 +55,18 @@ public class EventActivity extends AppCompatActivity
     }
 
     public void initialisation(){
+        initAppbar();
         initLocalisation();
         initApiCLient();
         initDatabase();
         initMap();
+    }
+
+    private void initAppbar(){
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        // Enable the Up button
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     private void initLocalisation() {
@@ -125,12 +135,12 @@ public class EventActivity extends AppCompatActivity
        /* if(meetingEvent.chosen()){
             finalPlace();
             return;
-        }
+        }*/
         if(meetingEvent.allrated()){
             // Show the final Place
             chosefinalPlace();
             return;
-        }*/
+        }
         if(meetingEvent.rated()){
             rated();
             return ;
@@ -143,6 +153,10 @@ public class EventActivity extends AppCompatActivity
     }
 
     private void chosefinalPlace() {
+        Intent intent = new Intent(getApplicationContext(), ChoseEventActivity.class);
+        intent.putExtra("Meeting_ID", meetingEvent.getID());
+        startActivity(intent);
+        finish();
     }
 
     protected void finalPlace() {

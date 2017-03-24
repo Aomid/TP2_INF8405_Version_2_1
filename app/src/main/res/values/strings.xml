@@ -16,4 +16,6 @@
     <string name="action_exit_group">Quit Group</string>
     <string name="dialog_title_save_ratings">Save Ratings</string>
     <string name="dialog_message_save_ratings">Save your ratings into the database</string>
+    <string name="title_activity_participate_event">ParticipateEventActivity</string>
+    <string name="title_activity_chose_event">ChoseEventActivity</string>
 </resources>

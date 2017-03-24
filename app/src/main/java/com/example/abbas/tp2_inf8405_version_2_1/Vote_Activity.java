@@ -32,11 +32,6 @@ public class Vote_Activity extends EventActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_vote_);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        ActionBar ab = getSupportActionBar();
-        // Enable the Up button
-        ab.setDisplayHomeAsUpEnabled(true);
         initialisation();
         setViews();
     }
