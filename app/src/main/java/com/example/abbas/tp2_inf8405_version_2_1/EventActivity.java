@@ -4,14 +4,20 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.net.Uri;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.firebase.client.Firebase;
@@ -20,6 +26,7 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.AddPlaceRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -33,6 +40,12 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import static com.example.abbas.tp2_inf8405_version_2_1.R.id.email;
+
 public class EventActivity extends AppCompatActivity
         implements OnMapReadyCallback,
         com.google.android.gms.location.LocationListener,
@@ -42,6 +55,7 @@ public class EventActivity extends AppCompatActivity
         GoogleMap.OnMarkerDragListener,
         GoogleMap.OnMarkerClickListener{
     protected MeetingEvent meetingEvent = null;
+    protected AddPlaceDialog addDialog = null;
     private GoogleApiClient mGoogleApiClient;
     Location mLastLocation,mLastKnownLocation;
     LocationRequest mLocationRequest;
@@ -174,11 +188,11 @@ public class EventActivity extends AppCompatActivity
     }
 
     public void showDialogPlace(LatLng latlng) {
-        AddPlaceDialog dialog = new AddPlaceDialog();
+        addDialog = new AddPlaceDialog();
         EventPlace ep = new EventPlace(latlng.latitude, latlng.longitude);
-        dialog.setPlace(ep);
+        addDialog.setPlace(ep);
         Log.d("Franck", meetingEvent.getDetails());
-        dialog.show(getFragmentManager(),"Place");
+        addDialog.show(getFragmentManager(),"Place");
     }
 
     public void addPlace(EventPlace place) {
@@ -460,5 +474,16 @@ public class EventActivity extends AppCompatActivity
     }
 
     protected void nextAction() {
+    }
+
+
+    public void takePhoto(View view) {
+
+        Toast.makeText(getApplicationContext(),"Camera test",Toast.LENGTH_LONG).show();
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+       // f = Uri.fromFile(getMediaFile());
+        intent.putExtra(MediaStore.EXTRA_OUTPUT,true);
+        startActivity(intent);
+        // startActivityForResult(intent, 1);
     }
 }
