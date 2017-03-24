@@ -40,7 +40,8 @@
         <activity
             android:name=".Group_Choice_Activity"
             android:label="@string/title_activity_group__choice_"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".Vote_Activity"></activity>
     </application>
 
 </manifest>

@@ -2,14 +2,14 @@ package com.example.abbas.tp2_inf8405_version_2_1;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.firebase.database.IgnoreExtraProperties;
 
 import java.io.ByteArrayOutputStream;
-import java.lang.reflect.Member;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Observable;
 
 /**
@@ -18,14 +18,13 @@ import java.util.Observable;
 
 @IgnoreExtraProperties
 class MeetingEvent extends Observable {
-
-
-
+    private String ID;
     private String meetingName;
     private String description;
     private String encodedPhoto;
-    private List<EventPlace> Places = new ArrayList<EventPlace>();
-    private List<User> members = new ArrayList<User>();
+    private User organizer;
+    private Map<String, EventPlace> places = new HashMap<String, EventPlace>();
+    private Map<String, User> members = new HashMap<String, User>();
     private EventPlace FinalPlace = null;
     private Calendar date;
 
@@ -75,17 +74,12 @@ class MeetingEvent extends Observable {
         this.encodedPhoto = encodedPhoto;
     }
 
-    public void setMeetingName(String meetingName) {
-        this.meetingName = meetingName;
-        setChanged();
+    public Map<String, EventPlace> getPlaces() {
+        return places;
     }
 
-    public List<EventPlace> getPlaces() {
-        return Places;
-    }
-
-    public void setPlaces(List<EventPlace> places) {
-        Places = places;
+    public void setPlaces(Map<String, EventPlace> places) {
+        this.places = places;
         setChanged();
     }
 
@@ -106,15 +100,66 @@ class MeetingEvent extends Observable {
         return meetingName;
     }
 
+    public void setMeetingName(String meetingName) {
+        this.meetingName = meetingName;
+        setChanged();
+    }
+
     public String print() {
         return "Meeting Name = "+ meetingName;
     }
 
     public void addMember(User instance) {
-        if(!members.contains(instance))
-            members.add(instance);
+        if (members.size() == 0)
+            organizer = instance;
+        if (!members.containsValue(instance)) {
+            members.put(instance.emailString, instance);
+            setChanged();
+        }
+
     }
 
+    public void addPlace(EventPlace instance) {
+        if (!places.containsValue(instance)) {
+            places.put("Place " + (places.size() + 1), instance);
+            setChanged();
+        }
+    }
+
+
+    public String getID() {
+        return ID;
+    }
+
+    public void setID(String ID) {
+        this.ID = ID;
+    }
+
+    public String getDetails() {
+        String retString = "";
+        retString = "Id : " + ID + "\n" +
+                "Name : " + meetingName + "\n" +
+                "";
+        int index = 1;
+        for (EventPlace ep : places.values())
+            retString = retString +
+                    "Place " + (index++) + " : " + ep.getName() + "(" + ep.getLatitude() + "," + ep.getLongitude() + ")\n";
+        index = 1;
+        for (User user : members.values())
+            retString = retString +
+                    "Member " + (index++) + " : " + user.emailString + "\n";
+        return retString;
+    }
+
+
+    public Map<String, User> getMembers() {
+        return members;
+    }
+
+    public void setMembers(Map<String, User> members) {
+        this.members = members;
+        setChanged();
+    }
 
 
 }

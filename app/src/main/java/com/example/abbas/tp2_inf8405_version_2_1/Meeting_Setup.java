@@ -1,14 +1,14 @@
 package com.example.abbas.tp2_inf8405_version_2_1;
 
 import android.app.Dialog;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -16,8 +16,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.location.places.AddPlaceRequest;
-import com.google.android.gms.maps.GoogleMap;
 import com.firebase.client.Firebase;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -25,6 +23,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
@@ -48,10 +47,6 @@ public class Meeting_Setup extends AppCompatActivity
         Observer {
     //8888888888888888888888888
     private static final String TAG = "Meeting Setup";
-    private GoogleMap map;
-    private double longitude;
-    private double latitude;
-    private GoogleApiClient googleApiClient;
     //8888888888888888888888
     //   private static final String TAG = "";
     private static final float DEFAULT_ZOOM = 2;
@@ -62,12 +57,17 @@ public class Meeting_Setup extends AppCompatActivity
     EditText meetingName;
     LocationRequest mLocationRequest;
     ListView scheduledMeetingsList;
-    //    GoogleMap map;
-    private GoogleApiClient mGoogleApiClient;
     Location mLastLocation;
     Location mLastKnownLocation;
     Marker mCurrLocationMarker;
     boolean mLocationPermissionGranted;
+    private GoogleMap map;
+    private double longitude;
+    private double latitude;
+    private MeetingEvent meetingEvent = null;
+    private GoogleApiClient googleApiClient;
+    //    GoogleMap map;
+    private GoogleApiClient mGoogleApiClient;
     private String UserName;
 
     @Override
@@ -105,10 +105,12 @@ public class Meeting_Setup extends AppCompatActivity
         }
         //Firebase pour cette partie
         Firebase.setAndroidContext(this);
+        retrieveMeetingEvent();
+
 
         ImageView userpic = (ImageView) findViewById(R.id.imageView2);
         TextView Username = (TextView) findViewById(R.id.Username);
-        Bundle extras = getIntent().getExtras();
+        //Bundle extras = getIntent().getExtras();
        /* String value = "";
         String picture = "";
 
@@ -299,11 +301,12 @@ public class Meeting_Setup extends AppCompatActivity
     }
 
 
+
     //this method updates Latitude and Longitude of users in Database when they login
     public void saveCurrentUserLocation(final double latitude, final double longitude) {
 
         final DatabaseReference update = FirebaseDatabase.getInstance().getReference("Users");
-        update.addValueEventListener(new ValueEventListener() {
+        update.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String tempUsername;
@@ -357,10 +360,60 @@ public class Meeting_Setup extends AppCompatActivity
     }
 */
 
- public void showDialog(){
+    public void retrieveMeetingEvent() {
+        Bundle extras = getIntent().getExtras();
+        final String event_Id = extras.getString("Meeting_ID");
+        DatabaseReference myRef = FirebaseDatabase.getInstance().getReference().child("Groups").child(event_Id);
+        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                meetingEvent = dataSnapshot.getValue(MeetingEvent.class);
+                meetingEvent.setID(event_Id);
+                Log.d("Franck", "Retrieve");
+                Log.d("Franck", meetingEvent.getDetails());
+                if (meetingEvent.getPlaces().size() > 2) {
+                    passVoteActivity();
+                }
+                for (EventPlace ep : meetingEvent.getPlaces().values()) {
+                    if (ep.retreiveMarker() == null) {
+                        ep.setMarker(map.addMarker(ep.provideMarkerOptions()));
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void passVoteActivity() {
+        Intent intent = new Intent(getApplicationContext(), Vote_Activity.class);
+        intent.putExtra("Meeting_ID", meetingEvent.getID());
+        startActivity(intent);
+    }
+
+    public void saveMeetingEvent() {
+        Log.d("Franck", "Save");
+        Log.d("Franck", meetingEvent.getDetails());
+        DatabaseReference addGroup = FirebaseDatabase.getInstance().getReference().child("Groups");
+        addGroup.child(meetingEvent.getID()).setValue(meetingEvent);
+    }
+
+    public void showDialogPlace(LatLng latlng) {
      AddPlaceDialog dialog = new AddPlaceDialog();
+        EventPlace ep = new EventPlace(latlng.latitude, latlng.longitude);
+        dialog.setPlace(ep);
+        Log.d("Franck", meetingEvent.getDetails());
      dialog.show(getFragmentManager(),"Place");
  }
+
+    public void addPlace(EventPlace place) {
+        meetingEvent.addPlace(place);
+        place.setMarker(map.addMarker(place.provideMarkerOptions()));
+        saveMeetingEvent();
+    }
 
 
     private class MapListener implements GoogleMap.OnMapLongClickListener,
@@ -374,10 +427,8 @@ public class Meeting_Setup extends AppCompatActivity
 
         @Override
         public void onMapLongClick(LatLng latLng) {
-            map.addMarker(new MarkerOptions().position(latLng).draggable(true));
-            showDialog();
-
-
+            //map.addMarker(new MarkerOptions().position(latLng).draggable(true));
+            showDialogPlace(latLng);
         }
 
         @Override
