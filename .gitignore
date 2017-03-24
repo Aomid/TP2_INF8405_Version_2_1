@@ -18,3 +18,4 @@ app/src/main/java/com/example/*
 !/app/src/main/res/
 !/build.gradle
 !/app/build.gradle
+!/app/google-services.json

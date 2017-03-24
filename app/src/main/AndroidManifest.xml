@@ -32,7 +32,9 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyC0GOWVMk-y0vSMolXnMTIM6GZEVDLExAs" />
 
-        <activity android:name=".Meeting_Setup">
+        <activity android:name=".Meeting_Setup"
+            android:label="@string/title_activity_group__choice_"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <meta-data
                 android:name="com.google.android.gms.version"
                 android:value="@integer/google_play_services_version" />
@@ -40,9 +42,13 @@
         <activity
             android:name=".Group_Choice_Activity"
             android:label="@string/title_activity_group__choice_"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".Vote_Activity" />
-        <activity android:name=".EventActivity"></activity>
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+        <activity android:name=".Vote_Activity"
+            android:label="@string/title_activity_vote_activity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+        <activity android:name=".EventActivity"
+            android:label="@string/title_activity_event_activity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
     </application>
 
 </manifest>

@@ -127,6 +127,24 @@ class MeetingEvent extends Observable {
     }
 
 
+    public boolean rated(){
+        for(EventPlace pe :places.values()){
+            if(!pe.getVotes().containsKey(UserProfile.getInstance().emailString)){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean allrated(){
+        for(EventPlace pe :places.values()){
+            if(pe.getVotes().size()!=members.size()){
+                return false;
+            }
+        }
+        return true;
+    }
+
     public String getID() {
         return ID;
     }
@@ -162,6 +180,23 @@ class MeetingEvent extends Observable {
     }
 
 
+    public User getOrganizer() {
+        return organizer;
+    }
+
+    public void setOrganizer(User organizer) {
+        this.organizer = organizer;
+    }
+
+
+
+   /* public boolean chosen() {
+        return (FinalPlace!=null);
+    }
+
+    public boolean amIOrganizer() {
+        return UserProfile.getInstance().equals(organizer);
+    }*/
 }
 
 

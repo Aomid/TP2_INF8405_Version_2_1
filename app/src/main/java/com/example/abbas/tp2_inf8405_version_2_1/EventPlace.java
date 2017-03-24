@@ -62,7 +62,7 @@ public class EventPlace implements MyMarker {
         return null;
     }
 
-    public Marker retreiveMarker() {
+    public Marker retrieveMarker() {
         return marker;
     }
 
@@ -171,5 +171,17 @@ public class EventPlace implements MyMarker {
 
     public void setMarker(Marker marker) {
         this.marker = marker;
+        marker.setTag(this);
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public int findMyVote() {
+        if(Votes.containsKey(UserProfile.getInstance().emailString))
+            return Votes.get(UserProfile.getInstance().emailString).intValue();
+        else
+            return 0;
     }
 }

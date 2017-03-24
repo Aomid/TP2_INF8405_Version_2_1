@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
@@ -122,7 +123,11 @@ public class Meeting_Setup extends EventActivity
 */
 
 
-
+    @Override
+    public void onMapLongClick(LatLng latLng) {
+        //map.addMarker(new MarkerOptions().position(latLng).draggable(true));
+        showDialogPlace(latLng);
+    }
 
 
 

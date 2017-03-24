@@ -8,7 +8,10 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.firebase.client.Firebase;
@@ -34,8 +37,11 @@ public class EventActivity extends AppCompatActivity
         implements OnMapReadyCallback,
         com.google.android.gms.location.LocationListener,
         GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener{
-    private MeetingEvent meetingEvent = null;
+        GoogleApiClient.OnConnectionFailedListener,
+        GoogleMap.OnMapLongClickListener,
+        GoogleMap.OnMarkerDragListener,
+        GoogleMap.OnMarkerClickListener{
+    protected MeetingEvent meetingEvent = null;
     private GoogleApiClient mGoogleApiClient;
     Location mLastLocation,mLastKnownLocation;
     LocationRequest mLocationRequest;
@@ -95,13 +101,13 @@ public class EventActivity extends AppCompatActivity
             public void onDataChange(DataSnapshot dataSnapshot) {
                 meetingEvent = dataSnapshot.getValue(MeetingEvent.class);
                 meetingEvent.setID(event_Id);
+
                 Log.d("Franck", "Retrieve");
                 Log.d("Franck", meetingEvent.getDetails());
-                if (meetingEvent.getPlaces().size() > 2) {
-                    //passVoteActivity();
-                }
+                changeActivity();
+
                 for (EventPlace ep : meetingEvent.getPlaces().values()) {
-                    if (ep.retreiveMarker() == null) {
+                    if (ep.retrieveMarker() == null) {
                         ep.setMarker(map.addMarker(ep.provideMarkerOptions()));
                     }
                 }
@@ -114,10 +120,50 @@ public class EventActivity extends AppCompatActivity
         });
     }
 
-    private void passVoteActivity() {
+    private void changeActivity() {
+
+       /* if(meetingEvent.chosen()){
+            finalPlace();
+            return;
+        }
+        if(meetingEvent.allrated()){
+            // Show the final Place
+            chosefinalPlace();
+            return;
+        }*/
+        if(meetingEvent.rated()){
+            rated();
+            return ;
+        }
+        if (meetingEvent.getPlaces().size() > 2) {
+            // Make Votes
+            passVoteActivity();
+            return;
+        }
+    }
+
+    private void chosefinalPlace() {
+    }
+
+    protected void finalPlace() {
+        /*if(meetingEvent.amIOrganizer()){}
+        else{
+
+        }*/
+    }
+
+    protected void rated() {
         Intent intent = new Intent(getApplicationContext(), Vote_Activity.class);
         intent.putExtra("Meeting_ID", meetingEvent.getID());
         startActivity(intent);
+        finish();
+    }
+
+    protected void passVoteActivity() {
+        Intent intent = new Intent(getApplicationContext(), Vote_Activity.class);
+        intent.putExtra("Meeting_ID", meetingEvent.getID());
+        startActivity(intent);
+        finish();
     }
 
     public void saveMeetingEvent() {
@@ -286,9 +332,9 @@ public class EventActivity extends AppCompatActivity
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
-        map.setOnMapLongClickListener(new EventActivity.MapListener());
-        map.setOnMarkerClickListener(new EventActivity.MapListener());
-        map.setOnMarkerDragListener(new EventActivity.MapListener());
+        map.setOnMapLongClickListener(this);
+        map.setOnMarkerClickListener(this);
+        map.setOnMarkerDragListener(this);
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
@@ -343,41 +389,76 @@ public class EventActivity extends AppCompatActivity
         });
     }
 
-    private class MapListener implements GoogleMap.OnMapLongClickListener,
-            GoogleMap.OnMarkerDragListener,
-            GoogleMap.OnMarkerClickListener{
-        @Override
-        public boolean onMarkerClick(Marker marker) {
-            Toast.makeText(EventActivity.this, "onMarkerClick", Toast.LENGTH_SHORT).show();
-            return true;
+
+    /** Listeners for the map */
+
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        //Toast.makeText(EventActivity.this, "onMarkerClick", Toast.LENGTH_SHORT).show();
+        return false;
+    }
+
+    @Override
+    public void onMapLongClick(LatLng latLng) {
+        //map.addMarker(new MarkerOptions().position(latLng).draggable(true));
+        //showDialogPlace(latLng);
+    }
+
+    @Override
+    public void onMarkerDragStart(Marker marker) {
+        Toast.makeText(EventActivity.this, "onMarkerDragStart", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onMarkerDrag(Marker marker) {
+        //Toast.makeText(EventActivity.this, "onMarkerDrag", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onMarkerDragEnd(Marker marker) {
+        Toast.makeText(EventActivity.this, "onMarkerDragEnd", Toast.LENGTH_SHORT).show();
+        // getting the Co-ordinates
+        //  latitude = marker.getPosition().latitude;
+        //  longitude = marker.getPosition().longitude;
+
+        //move to current position
+        //moveMap();
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.appbargroup, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                // User chose the "Settings" item, show the app settings UI...
+                return true;
+
+            case R.id.action_ok:
+                nextAction();
+                return true;
+
+            case R.id.action_quit_group:
+                quit_group();
+                return true;
+
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                return super.onOptionsItemSelected(item);
+
         }
+    }
 
-        @Override
-        public void onMapLongClick(LatLng latLng) {
-            //map.addMarker(new MarkerOptions().position(latLng).draggable(true));
-            showDialogPlace(latLng);
-        }
+    protected void quit_group() {
+    }
 
-        @Override
-        public void onMarkerDragStart(Marker marker) {
-            Toast.makeText(EventActivity.this, "onMarkerDragStart", Toast.LENGTH_SHORT).show();
-        }
-
-        @Override
-        public void onMarkerDrag(Marker marker) {
-            //Toast.makeText(EventActivity.this, "onMarkerDrag", Toast.LENGTH_SHORT).show();
-        }
-
-        @Override
-        public void onMarkerDragEnd(Marker marker) {
-            Toast.makeText(EventActivity.this, "onMarkerDragEnd", Toast.LENGTH_SHORT).show();
-            // getting the Co-ordinates
-            //  latitude = marker.getPosition().latitude;
-            //  longitude = marker.getPosition().longitude;
-
-            //move to current position
-            //moveMap();
-        }
-
+    protected void nextAction() {
     }
 }
