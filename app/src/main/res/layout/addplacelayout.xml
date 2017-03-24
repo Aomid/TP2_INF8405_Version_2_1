@@ -18,6 +18,7 @@
         android:layout_width="match_parent"
         android:layout_height="64dp"
         android:contentDescription="@string/place_image"
+        android:onClick="selectPhoto"
         app:srcCompat="@mipmap/userprofiledefaul" />
     <EditText
         android:id="@+id/description"

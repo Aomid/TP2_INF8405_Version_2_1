@@ -1,15 +1,24 @@
 package com.example.abbas.tp2_inf8405_version_2_1;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Layout;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -23,6 +32,7 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.AddPlaceRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -36,12 +46,13 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.Observable;
 import java.util.Observer;
 
 public class Meeting_Setup extends EventActivity
-        implements
-        Observer {
+{
     //8888888888888888888888888
     private static final String TAG = "Meeting Setup";
     //8888888888888888888888
@@ -65,6 +76,7 @@ public class Meeting_Setup extends EventActivity
     //    GoogleMap map;
 
     private String UserName;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,6 +133,7 @@ public class Meeting_Setup extends EventActivity
 */
 
 
+
     @Override
     public void onMapLongClick(LatLng latLng) {
         //map.addMarker(new MarkerOptions().position(latLng).draggable(true));
@@ -128,5 +141,39 @@ public class Meeting_Setup extends EventActivity
     }
 
 
+    public void selectPhoto(View view) {
+        Intent photoPickerIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(photoPickerIntent, SELECT_PHOTO);
+    }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
+        super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
+
+        switch(requestCode) {
+            case SELECT_PHOTO:
+                if(resultCode == RESULT_OK){
+                    try {
+                        final Uri imageUri = imageReturnedIntent.getData();
+                        //final InputStream imageStream = getContentResolver().openInputStream(imageUri);
+                        //final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
+                        showImageSelected(imageUri);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+
+        }
+    }
+    private void showImageSelected(Uri uri) throws FileNotFoundException {
+        //setContentView(R.layout.addplacelayout);
+        //Layout test=(Layout)findViewById(R.layout.addplacelayout);
+        ImageView img=addDialog.getImageView();
+        final InputStream imageStream = getContentResolver().openInputStream(uri);
+        final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
+        img.setImageBitmap(selectedImage);
+        img.setVisibility(View.VISIBLE);
+
+    }
 }
