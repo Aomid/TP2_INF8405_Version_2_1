@@ -19,10 +19,16 @@ public class ChoseEventActivity extends EventActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d("Franck", " Instance Chose Event");
-        setContentView(R.layout.activity_chose_event);
         initialisation();
         //setDateTime();
     }
+
+
+    @Override
+    protected void initViews(){
+        findViewById(R.id.layout_chose).setVisibility(View.VISIBLE);
+    }
+
 
     private void setDateTime() {
         Calendar rightNow = meetingEvent.convertStartDate();

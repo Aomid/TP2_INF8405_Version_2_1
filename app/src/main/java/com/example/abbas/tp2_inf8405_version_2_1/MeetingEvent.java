@@ -4,11 +4,13 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.IgnoreExtraProperties;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 
@@ -18,8 +20,7 @@ import java.util.Observable;
 
 
 @IgnoreExtraProperties
-class MeetingEvent extends Observable {
-
+class MeetingEvent extends Observable implements MyMeetingMarkers{
     private String ID;
     private String meetingName;
     private String description;
@@ -29,7 +30,7 @@ class MeetingEvent extends Observable {
     private Map<String, User> members = new HashMap<String, User>();
     private Map<String, String> participations = new HashMap<>();
     private EventPlace FinalPlace = null;
-    private Long nbParticipantsMin = 3L, NbParticipantsMax = 3L;
+    private Long nbParticipantsMin = 3L, nbParticipantsMax = 3L;
     private Long nbPlacesMin = 3L, nbPlacesMax = 3L;
     private String status = Code.NOT_CREATED;
     private Long startDateLong = null, endDateLong = null;
@@ -51,11 +52,11 @@ class MeetingEvent extends Observable {
     }
 
     public Long getNbParticipantsMax() {
-        return NbParticipantsMax;
+        return nbParticipantsMax;
     }
 
     public void setNbParticipantsMax(Long nbParticipantsMax) {
-        NbParticipantsMax = nbParticipantsMax;
+        this.nbParticipantsMax = nbParticipantsMax;
     }
 
     public Long getNbPlacesMin() {
@@ -148,13 +149,18 @@ class MeetingEvent extends Observable {
         return "Meeting Name = "+ meetingName;
     }
 
-    public void addMember(User instance) {
+    public boolean addMember(User instance) {
         if (members.size() == 0)
             organizer = instance;
-        if (!members.containsValue(instance)) {
-            members.put(instance.emailString, instance);
-            setChanged();
+        if (!members.containsValue(instance) ) {
+            if(members.size() == nbParticipantsMax)
+                return false;
+            else {
+                members.put(instance.emailString, instance);
+                setChanged();
+            }
         }
+        return true;
 
     }
 
@@ -331,6 +337,12 @@ class MeetingEvent extends Observable {
     public void setStatus(String status) {
         this.status = status;
     }
+
+    @Override
+    public List<MarkerOptions> provideMeetingMarkersOptions() {
+        return null;
+    }
+
 
     class Code {
         public static final String NOT_CREATED = "0L";

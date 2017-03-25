@@ -70,7 +70,15 @@ public class Group_Choice_Activity extends AppCompatActivity {
                     //tempGroup.add(String.valueOf(dsp.child("groupName").getValue()));
                     if (String.valueOf(dsp.child("meetingName").getValue()).equalsIgnoreCase(groupName)) {
                         groupExist = true;
-                        Toast.makeText(getApplicationContext(), "This group exists.", Toast.LENGTH_SHORT).show();
+                        MeetingEvent me = dsp.getValue(MeetingEvent.class);
+                        if(me.addMember(UserProfile.getInstance())) {
+                            DatabaseReference addGroup = FirebaseDatabase.getInstance().getReference().child("Groups");
+                            addGroup.child(meetingId).setValue(me);
+                            Toast.makeText(getApplicationContext(), "This group exists.", Toast.LENGTH_SHORT).show();
+                        }else{
+                            // Group full
+                            meetingId = null;
+                        }
                         break;
                     }
                 }
@@ -101,5 +109,6 @@ public class Group_Choice_Activity extends AppCompatActivity {
         addGroup.child(ID).setValue(meetingEvent);
         return ID;
     }
+
 
 }

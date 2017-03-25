@@ -51,8 +51,6 @@ public class Meeting_Setup extends EventActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_meeting_setup);
-
         initialisation();
         ImageView userpic = (ImageView) findViewById(R.id.imageView2);
         TextView Username = (TextView) findViewById(R.id.Username);

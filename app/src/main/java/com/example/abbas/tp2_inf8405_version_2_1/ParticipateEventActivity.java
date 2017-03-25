@@ -12,8 +12,12 @@ public class ParticipateEventActivity extends EventActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d("Franck", " Instance participate");
-        setContentView(R.layout.activity_chose_event);
         initialisation();
+    }
+
+    @Override
+    protected void initViews(){
+        findViewById(R.id.layout_participate).setVisibility(View.VISIBLE);
     }
 
 

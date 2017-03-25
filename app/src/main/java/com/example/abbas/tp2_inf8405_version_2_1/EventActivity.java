@@ -56,11 +56,21 @@ public class EventActivity extends AppCompatActivity
     }
 
     public void initialisation(){
+        setContentView();
         initAppbar();
         initLocalisation();
         initApiCLient();
-        initDatabase();
         initMap();
+        initDatabase();
+        initViews();
+    }
+
+    protected void initViews() {
+
+    }
+
+    protected void setContentView() {
+        setContentView(R.layout.meeting_global_layout);
     }
 
     private void initAppbar(){
@@ -135,9 +145,11 @@ public class EventActivity extends AppCompatActivity
             }
         }*/
 
-        for (EventPlace ep : meetingEvent.getPlaces().values()) {
-            if (ep.retrieveMarker() == null) {
-                ep.setMarker(map.addMarker(ep.provideMarkerOptions()));
+        if(map != null) {
+            for (EventPlace ep : meetingEvent.getPlaces().values()) {
+                if (ep.retrieveMarker() == null) {
+                    ep.setMarker(map.addMarker(ep.provideMarkerOptions()));
+                }
             }
         }
     }
@@ -434,6 +446,7 @@ public class EventActivity extends AppCompatActivity
     @Override
     public boolean onMarkerClick(Marker marker) {
         //Toast.makeText(EventActivity.this, "onMarkerClick", Toast.LENGTH_SHORT).show();
+        //TODO if marker for Place show place in place meeting else User
         return false;
     }
 
