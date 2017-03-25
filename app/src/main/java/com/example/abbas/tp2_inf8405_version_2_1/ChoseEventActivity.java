@@ -26,6 +26,7 @@ public class ChoseEventActivity extends EventActivity {
 
     @Override
     protected void initViews(){
+        super.initViews();
         findViewById(R.id.layout_chose).setVisibility(View.VISIBLE);
     }
 
@@ -125,7 +126,7 @@ public class ChoseEventActivity extends EventActivity {
         //TODO Verifier qu'il y ait bien les dates
         meetingEvent.setStatus(PARTICIPATION);
         saveMeetingEvent();
-        //passParticipate();
+        passParticipate();
     }
 
     @Override

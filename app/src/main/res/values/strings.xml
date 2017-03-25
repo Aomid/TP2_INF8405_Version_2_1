@@ -25,4 +25,5 @@
     <string name="mayParticipate">Maybe</string>
     <string name="start">Start</string>
     <string name="end">End</string>
+    <string name="action_logout">Log out</string>
 </resources>

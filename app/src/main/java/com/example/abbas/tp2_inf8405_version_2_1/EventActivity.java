@@ -14,6 +14,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.RatingBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.firebase.client.Firebase;
@@ -44,6 +46,10 @@ public class EventActivity extends AppCompatActivity
         GoogleMap.OnMarkerClickListener{
     protected MeetingEvent meetingEvent = null;
     protected AddPlaceDialog addDialog = null;
+    public TextView placeName= null;
+    public TextView placeDescription= null;
+    public RatingBar placeRating= null;
+    public EventPlace current_place_event = null;
     Location mLastLocation,mLastKnownLocation;
     LocationRequest mLocationRequest;
     private GoogleApiClient mGoogleApiClient;
@@ -57,17 +63,36 @@ public class EventActivity extends AppCompatActivity
 
     public void initialisation(){
         setContentView();
+        initViews();
         initAppbar();
         initLocalisation();
         initApiCLient();
         initMap();
         initDatabase();
-        initViews();
     }
 
     protected void initViews() {
-
+        if(placeName== null)
+            placeName = (TextView) findViewById(R.id.place_selected_name);
+        if(placeDescription== null)
+            placeDescription = (TextView) findViewById(R.id.place_selected_desc);
+        if(placeRating== null) {
+            placeRating = (RatingBar) findViewById(R.id.place_selected_rating);
+        }
     }
+
+    protected void showPlace(Marker marker) {
+        current_place_event = (EventPlace) marker.getTag();
+        placeName.setText(current_place_event.getName());
+        placeDescription.setText(current_place_event.getDescription());
+        showRating();
+    }
+
+    protected void showRating() {
+        placeRating.setVisibility(View.VISIBLE);
+        placeRating.setMax(5);
+    }
+
 
     protected void setContentView() {
         setContentView(R.layout.meeting_global_layout);
@@ -146,11 +171,20 @@ public class EventActivity extends AppCompatActivity
         }*/
 
         if(map != null) {
+
             for (EventPlace ep : meetingEvent.getPlaces().values()) {
                 if (ep.retrieveMarker() == null) {
                     ep.setMarker(map.addMarker(ep.provideMarkerOptions()));
                 }
             }
+            EventPlace ep = meetingEvent.getFinalPlace();
+            if(ep!=null) {
+                if (ep.retrieveMarker() == null) {
+                    ep.setMarker(map.addMarker(ep.provideMarkerOptions()));
+                }
+            }
+        }else{
+            Log.d("Franck", "map null");
         }
     }
 

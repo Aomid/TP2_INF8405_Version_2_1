@@ -15,35 +15,26 @@ import static com.example.abbas.tp2_inf8405_version_2_1.MeetingEvent.Code.ELECTI
 
 public class Vote_Activity extends EventActivity {
 
-    public TextView placeName= null;
-    public TextView placeDescription= null;
-    public RatingBar placeRating= null;
-    public EventPlace current_place_event = null;
+
     public boolean voted  = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         initialisation();
-        setViews();
     }
 
-    private void setViews() {
-        if(placeName== null)
-            placeName = (TextView) findViewById(R.id.place_selected_name);
-        if(placeDescription== null)
-            placeDescription = (TextView) findViewById(R.id.place_selected_desc);
-        if(placeRating== null) {
-            placeRating = (RatingBar) findViewById(R.id.place_selected_rating);
-            placeRating.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
-                @Override
-                public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
-                    if (fromUser){
-                        current_place_event.Vote(UserProfile.getInstance().emailString, (long) rating);
-                        Toast.makeText(getApplicationContext(),"Vote "+(long) rating,Toast.LENGTH_SHORT ).show();
-                    }
+    @Override
+    protected void initViews() {
+        super.initViews();
+        placeRating.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
+            @Override
+            public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
+                if (fromUser){
+                    current_place_event.Vote(UserProfile.getInstance().emailString, (long) rating);
+                    Toast.makeText(getApplicationContext(),"Vote "+(long) rating,Toast.LENGTH_SHORT ).show();
                 }
-            });
-        }
+            }
+        });
     }
 
     @Override
@@ -51,6 +42,16 @@ public class Vote_Activity extends EventActivity {
         Toast.makeText(Vote_Activity.this, "onMarkerClick", Toast.LENGTH_SHORT).show();
         showPlace(marker);
         return true;
+    }
+
+
+    protected void  showRating() {
+        super.showRating();
+        if (!voted) {
+            showMyVote(current_place_event);
+        } else {
+            showAverage(current_place_event);
+        }
     }
 
     private void showAverage(EventPlace ep) {
@@ -61,19 +62,6 @@ public class Vote_Activity extends EventActivity {
         placeRating.setRating(ep.findMyVote());
     }
 
-    private void showPlace(Marker marker) {
-        current_place_event = (EventPlace) marker.getTag();
-        placeName.setText(current_place_event.getName());
-        placeDescription.setText(current_place_event.getDescription());
-        placeRating.setVisibility(View.VISIBLE);
-        placeRating.setMax(5);
-        if(!voted){
-            showMyVote(current_place_event);
-        }else{
-            showAverage(current_place_event);
-        }
-        Log.d("Franck","Num stars"+placeRating.getNumStars());
-    }
 
 
 
@@ -82,7 +70,7 @@ public class Vote_Activity extends EventActivity {
         // 1. Instantiate an AlertDialog.Builder with its constructor
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-    // 2. Chain together various setter methods to set the dialog characteristics
+        // 2. Chain together various setter methods to set the dialog characteristics
         builder.setMessage(R.string.dialog_message_save_ratings)
                 .setTitle(R.string.dialog_title_save_ratings);
         builder.setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
@@ -100,8 +88,9 @@ public class Vote_Activity extends EventActivity {
             }
         });
 
-// 3. Get the AlertDialog from create()
+        // 3. Get the AlertDialog from create()
         AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
 
@@ -109,7 +98,7 @@ public class Vote_Activity extends EventActivity {
     protected void nextAction(){
         if(voted || meetingEvent.rated()) {
             if(!placeRating.isIndicator()) {
-               alertDialogSaveRatings();
+                alertDialogSaveRatings();
             } else {
                 Toast.makeText(this, "Already saved", Toast.LENGTH_SHORT).show();
             }

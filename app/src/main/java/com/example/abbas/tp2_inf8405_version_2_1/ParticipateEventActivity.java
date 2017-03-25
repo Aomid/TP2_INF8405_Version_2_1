@@ -17,6 +17,7 @@ public class ParticipateEventActivity extends EventActivity {
 
     @Override
     protected void initViews(){
+        super.initViews();
         findViewById(R.id.layout_participate).setVisibility(View.VISIBLE);
     }
 
@@ -46,6 +47,8 @@ public class ParticipateEventActivity extends EventActivity {
     protected void passParticipate() {
         show_Participate_Btns();
         setUpRadioGroup();
+        updateMeetingChanges();
+        showPlace(meetingEvent.getFinalPlace().retrieveMarker());
     }
 
     @Override

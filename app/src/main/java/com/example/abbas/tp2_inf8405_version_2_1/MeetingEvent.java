@@ -2,6 +2,7 @@ package com.example.abbas.tp2_inf8405_version_2_1;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -303,6 +304,7 @@ class MeetingEvent extends Observable implements MyMeetingMarkers{
      }
  */
     public boolean amITheOrganizer() {
+        Log.d("Franck", "OrganizerMe"+ UserProfile.getInstance().equals(organizer));
         return UserProfile.getInstance().equals(organizer);
     }
 

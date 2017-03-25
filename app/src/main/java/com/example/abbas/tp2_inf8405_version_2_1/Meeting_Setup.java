@@ -115,6 +115,10 @@ public class Meeting_Setup extends EventActivity
     }
 
     @Override
+    protected void showRating(){
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
         super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
 
@@ -150,6 +154,7 @@ public class Meeting_Setup extends EventActivity
         if (meetingEvent.getPlaces().size() >= meetingEvent.getNbPlacesMin()) {
             meetingEvent.setStatus(MeetingEvent.Code.RATING_PLACES);
             saveMeetingEvent();
+            passVoteActivity();
         }
     }
 }

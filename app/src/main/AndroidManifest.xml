@@ -44,16 +44,31 @@
         </activity>
         <activity
             android:name=".Group_Choice_Activity"
+            android:parentActivityName=".MainActivity"
             android:label="@string/title_activity_group__choice_"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.abbas.tp2_inf8405_version_2_1.MainActivity" />
+        </activity>
         <activity
             android:name=".Vote_Activity"
+            android:parentActivityName=".Group_Choice_Activity"
             android:label="@string/title_activity_vote_activity"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.abbas.tp2_inf8405_version_2_1.Group_Choice_Activity" />
+        </activity>
         <activity
             android:name=".EventActivity"
+            android:parentActivityName=".Group_Choice_Activity"
             android:label="@string/title_activity_event_activity"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.abbas.tp2_inf8405_version_2_1.Group_Choice_Activity" />
+        </activity>
         <activity
             android:name=".ParticipateEventActivity"
             android:label="@string/title_activity_participate_event"

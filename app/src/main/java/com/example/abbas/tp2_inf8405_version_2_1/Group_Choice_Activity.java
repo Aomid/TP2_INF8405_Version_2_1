@@ -59,7 +59,7 @@ public class Group_Choice_Activity extends AppCompatActivity {
                 List<String> tempGroup = new ArrayList<String>();
                 String meetingId = null;
                 boolean groupExist = false;
-
+                MeetingEvent me = null;
                 int i = (int) dataSnapshot.getChildrenCount();
 
                 MeetingEvent post = dataSnapshot.getValue(MeetingEvent.class);
@@ -70,27 +70,25 @@ public class Group_Choice_Activity extends AppCompatActivity {
                     //tempGroup.add(String.valueOf(dsp.child("groupName").getValue()));
                     if (String.valueOf(dsp.child("meetingName").getValue()).equalsIgnoreCase(groupName)) {
                         groupExist = true;
-                        MeetingEvent me = dsp.getValue(MeetingEvent.class);
+                        me = dsp.getValue(MeetingEvent.class);
                         if(me.addMember(UserProfile.getInstance())) {
                             DatabaseReference addGroup = FirebaseDatabase.getInstance().getReference().child("Groups");
                             addGroup.child(meetingId).setValue(me);
                             Toast.makeText(getApplicationContext(), "This group exists.", Toast.LENGTH_SHORT).show();
                         }else{
                             // Group full
-                            meetingId = null;
+                            me = null;
                         }
                         break;
                     }
                 }
                 if (!groupExist) {
-                    meetingId = CreateMeeting(groupName);
+                    me= CreateMeeting(groupName);
                     Toast.makeText(getApplicationContext(), "Create a new group"+meetingId , Toast.LENGTH_SHORT).show();
 
                 }
-                if(meetingId != null) {
-                    Intent intent = new Intent(getApplicationContext(), Meeting_Setup.class);
-                    intent.putExtra("Meeting_ID", meetingId);
-                    startActivity(intent);
+                if(me != null) {
+                   JoinGroup(me);
                 }
             }
 
@@ -101,14 +99,49 @@ public class Group_Choice_Activity extends AppCompatActivity {
         });
     }
 
-    public String CreateMeeting(String name){
+    public MeetingEvent CreateMeeting(String name){
         MeetingEvent meetingEvent = new MeetingEvent(name);
         meetingEvent.addMember(UserProfile.getInstance());
         DatabaseReference addGroup=FirebaseDatabase.getInstance().getReference().child("Groups");
         String ID=addGroup.push().getKey();
+        meetingEvent.setID(ID);
         addGroup.child(ID).setValue(meetingEvent);
-        return ID;
+        return meetingEvent;
     }
 
+    public void JoinGroup(MeetingEvent me){
+        if(me != null) {
+            Intent intent = null;
+            switch (me.getStatus()) {
+                case MeetingEvent.Code.NOT_CREATED:
+                    intent = new Intent(getApplicationContext(), Meeting_Setup.class);
+                    break;
+                case MeetingEvent.Code.SETTING_PLACES:
+                    intent = new Intent(getApplicationContext(), Meeting_Setup.class);
+                    break;
+                case MeetingEvent.Code.RATING_PLACES:
+                    intent = new Intent(getApplicationContext(), Vote_Activity.class);
+                    break;
+                case MeetingEvent.Code.ELECTING_PLACE:
+                    if(me.amITheOrganizer()) {
+                        intent = new Intent(getApplicationContext(), ChoseEventActivity.class);
+                    }else{
+                        intent = new Intent(getApplicationContext(), Vote_Activity.class);
+                    }
+                    break;
+                case MeetingEvent.Code.PARTICIPATION:
+                    intent = new Intent(getApplicationContext(), ParticipateEventActivity.class);
+                    break;
+                case MeetingEvent.Code.END:
+                    intent = new Intent(getApplicationContext(), ParticipateEventActivity.class);
+                    break;
+            }
+            if (intent != null) {
+                intent.putExtra("Meeting_ID", me.getID());
+                startActivity(intent);
+                finish();
+            }
+        }
+    }
 
 }
