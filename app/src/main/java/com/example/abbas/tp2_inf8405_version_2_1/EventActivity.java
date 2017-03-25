@@ -524,6 +524,7 @@ public class EventActivity extends AppCompatActivity
         switch (item.getItemId()) {
             case R.id.action_settings:
                 // User chose the "Settings" item, show the app settings UI...
+                Toast.makeText(getApplicationContext(),"test",Toast.LENGTH_LONG).show();
                 return true;
 
             case R.id.action_ok:
@@ -543,7 +544,28 @@ public class EventActivity extends AppCompatActivity
     }
 
     protected void quit_group() {
+        DatabaseReference delete=FirebaseDatabase.getInstance().getReference().child("Groups");
+        delete.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for(DataSnapshot dsp : dataSnapshot.getChildren())
+                {
+                    dsp.getKey();
+                    if(dsp.child("meetingName").getValue().toString().equalsIgnoreCase(meetingEvent.getMeetingName()))
+                    {
+                        dsp.child("members").child(UserProfile.getInstance().emailString).getRef().removeValue();
+                        Toast.makeText(getApplicationContext(),"You leave this group",Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
+
 
     protected void nextAction() {
     }
