@@ -18,4 +18,11 @@
     <string name="dialog_message_save_ratings">Save your ratings into the database</string>
     <string name="title_activity_participate_event">ParticipateEventActivity</string>
     <string name="title_activity_chose_event">ChoseEventActivity</string>
+    <string name="dontParticipate">Do not participate</string>
+    <string name="mayparticipate">Maybe</string>
+    <string name="participate">Yes</string>
+    <string name="doNotParticipate">No</string>
+    <string name="mayParticipate">Maybe</string>
+    <string name="start">Start</string>
+    <string name="end">End</string>
 </resources>

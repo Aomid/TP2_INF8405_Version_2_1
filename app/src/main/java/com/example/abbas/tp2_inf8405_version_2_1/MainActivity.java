@@ -268,11 +268,6 @@ public class MainActivity extends AppCompatActivity {
         //Toast.makeText(getApplicationContext(),"Username and password is correct",Toast.LENGTH_LONG).show();
         UserProfile.setINSTANCE(new User(UserName,profileImageOnString));
         Intent intent=new Intent(getApplicationContext(),Group_Choice_Activity.class);
-        intent.putExtra("username",UserName);
-        intent.putExtra("picture",profileImageOnString);
-
-       // intent.putExtra("pic",bitmap);
-
         startActivity(intent);
 
 

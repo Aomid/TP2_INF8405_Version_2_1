@@ -4,21 +4,16 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.net.Uri;
-import android.os.Environment;
+import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import com.firebase.client.Firebase;
@@ -27,8 +22,6 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.places.AddPlaceRequest;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -41,12 +34,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-import static com.example.abbas.tp2_inf8405_version_2_1.R.id.email;
-
 public class EventActivity extends AppCompatActivity
         implements OnMapReadyCallback,
         com.google.android.gms.location.LocationListener,
@@ -57,9 +44,9 @@ public class EventActivity extends AppCompatActivity
         GoogleMap.OnMarkerClickListener{
     protected MeetingEvent meetingEvent = null;
     protected AddPlaceDialog addDialog = null;
-    private GoogleApiClient mGoogleApiClient;
     Location mLastLocation,mLastKnownLocation;
     LocationRequest mLocationRequest;
+    private GoogleApiClient mGoogleApiClient;
     private GoogleMap map;
 
     @Override
@@ -127,14 +114,10 @@ public class EventActivity extends AppCompatActivity
                 meetingEvent.setID(event_Id);
 
                 Log.d("Franck", "Retrieve");
-                Log.d("Franck", meetingEvent.getDetails());
+                Log.d("Franck", meetingEvent.detailsIntoString());
                 changeActivity();
+                updateMeetingChanges();
 
-                for (EventPlace ep : meetingEvent.getPlaces().values()) {
-                    if (ep.retrieveMarker() == null) {
-                        ep.setMarker(map.addMarker(ep.provideMarkerOptions()));
-                    }
-                }
             }
 
             @Override
@@ -144,41 +127,69 @@ public class EventActivity extends AppCompatActivity
         });
     }
 
-    private void changeActivity() {
-
-       /* if(meetingEvent.chosen()){
-            finalPlace();
-            return;
+    protected void updateMeetingChanges() {
+        /*
+        for (User user : meetingEvent.getMembers().values()){
+            user.retrieveMarker() == null){
+                user.setMarker(map.addMarker(user.provideMarkerOptions()));
+            }
         }*/
-        if(meetingEvent.allrated()){
-            // Show the final Place
-            chosefinalPlace();
-            return;
-        }
-        if(meetingEvent.rated()){
-            rated();
-            return ;
-        }
-        if (meetingEvent.getPlaces().size() > 2) {
-            // Make Votes
-            passVoteActivity();
-            return;
+
+        for (EventPlace ep : meetingEvent.getPlaces().values()) {
+            if (ep.retrieveMarker() == null) {
+                ep.setMarker(map.addMarker(ep.provideMarkerOptions()));
+            }
         }
     }
 
-    private void chosefinalPlace() {
+    protected void changeActivity() {
+        switch (meetingEvent.getStatus()) {
+            case MeetingEvent.Code.NOT_CREATED:
+                return;
+            case MeetingEvent.Code.SETTING_PLACES:
+                return;
+            case MeetingEvent.Code.RATING_PLACES:
+                passVoteActivity();
+                return;
+            case MeetingEvent.Code.ELECTING_PLACE:
+                chosefinalPlace();
+                return;
+            case MeetingEvent.Code.PARTICIPATION:
+                passParticipate();
+                return;
+            case MeetingEvent.Code.END:
+                return;
+        }
+    }
+        /*protected void changeActivity() {
+            if (meetingEvent.getFinalPlace() != null) {
+                passParticipate();
+                return;
+            }
+            if (meetingEvent.allrated()) {
+                // Show the final Place
+                chosefinalPlace();
+                return;
+            }
+            if (meetingEvent.rated()) {
+                rated();
+                return;
+            }
+            if (meetingEvent.getPlaces().size() > 2) {
+                // Make Votes
+
+                return;
+            }
+        }
+    }*/
+
+    protected void chosefinalPlace() {
         Intent intent = new Intent(getApplicationContext(), ChoseEventActivity.class);
         intent.putExtra("Meeting_ID", meetingEvent.getID());
         startActivity(intent);
         finish();
     }
 
-    protected void finalPlace() {
-        /*if(meetingEvent.amIOrganizer()){}
-        else{
-
-        }*/
-    }
 
     protected void rated() {
         Intent intent = new Intent(getApplicationContext(), Vote_Activity.class);
@@ -196,7 +207,7 @@ public class EventActivity extends AppCompatActivity
 
     public void saveMeetingEvent() {
         Log.d("Franck", "Save");
-        Log.d("Franck", meetingEvent.getDetails());
+        Log.d("Franck", meetingEvent.detailsIntoString());
         DatabaseReference addGroup = FirebaseDatabase.getInstance().getReference().child("Groups");
         addGroup.child(meetingEvent.getID()).setValue(meetingEvent);
     }
@@ -205,7 +216,7 @@ public class EventActivity extends AppCompatActivity
         addDialog = new AddPlaceDialog();
         EventPlace ep = new EventPlace(latlng.latitude, latlng.longitude);
         addDialog.setPlace(ep);
-        Log.d("Franck", meetingEvent.getDetails());
+        Log.d("Franck", meetingEvent.detailsIntoString());
         addDialog.show(getFragmentManager(),"Place");
     }
 
@@ -488,6 +499,14 @@ public class EventActivity extends AppCompatActivity
     }
 
     protected void nextAction() {
+    }
+
+    protected void passParticipate() {
+        Log.d("Franck", "Must participate");
+        Intent intent = new Intent(getApplicationContext(), ParticipateEventActivity.class);
+        intent.putExtra("Meeting_ID", meetingEvent.getID());
+        startActivity(intent);
+        finish();
     }
 
 

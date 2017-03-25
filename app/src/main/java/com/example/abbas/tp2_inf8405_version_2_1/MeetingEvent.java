@@ -16,8 +16,10 @@ import java.util.Observable;
  * Created by Abbas on 3/19/2017.
  */
 
+
 @IgnoreExtraProperties
 class MeetingEvent extends Observable {
+
     private String ID;
     private String meetingName;
     private String description;
@@ -25,15 +27,51 @@ class MeetingEvent extends Observable {
     private User organizer;
     private Map<String, EventPlace> places = new HashMap<String, EventPlace>();
     private Map<String, User> members = new HashMap<String, User>();
+    private Map<String, String> participations = new HashMap<>();
     private EventPlace FinalPlace = null;
-    private Calendar date;
-
+    private Long nbParticipantsMin = 3L, NbParticipantsMax = 3L;
+    private Long nbPlacesMin = 3L, nbPlacesMax = 3L;
+    private String status = Code.NOT_CREATED;
+    private Long startDateLong = null, endDateLong = null;
+    private Calendar startDate = null, endDate = null;
 
     public MeetingEvent (){
     }
 
     public MeetingEvent(String name){
         meetingName = name;
+    }
+
+    public Long getNbParticipantsMin() {
+        return nbParticipantsMin;
+    }
+
+    public void setNbParticipantsMin(Long nbParticipantsMin) {
+        this.nbParticipantsMin = nbParticipantsMin;
+    }
+
+    public Long getNbParticipantsMax() {
+        return NbParticipantsMax;
+    }
+
+    public void setNbParticipantsMax(Long nbParticipantsMax) {
+        NbParticipantsMax = nbParticipantsMax;
+    }
+
+    public Long getNbPlacesMin() {
+        return nbPlacesMin;
+    }
+
+    public void setNbPlacesMin(Long nbPlacesMin) {
+        this.nbPlacesMin = nbPlacesMin;
+    }
+
+    public Long getNbPlacesMax() {
+        return nbPlacesMax;
+    }
+
+    public void setNbPlacesMax(Long nbPlacesMax) {
+        this.nbPlacesMax = nbPlacesMax;
     }
 
     @JsonIgnore
@@ -46,6 +84,7 @@ class MeetingEvent extends Observable {
         encodedPhoto = imageFile;
         setChanged();
     }
+
     @JsonIgnore
     public Bitmap getGetDecodedImage(){
         try {
@@ -126,7 +165,6 @@ class MeetingEvent extends Observable {
         }
     }
 
-
     public boolean rated(){
         for(EventPlace pe :places.values()){
             if(!pe.getVotes().containsKey(UserProfile.getInstance().emailString)){
@@ -153,10 +191,12 @@ class MeetingEvent extends Observable {
         this.ID = ID;
     }
 
-    public String getDetails() {
+    public String detailsIntoString() {
         String retString = "";
         retString = "Id : " + ID + "\n" +
                 "Name : " + meetingName + "\n" +
+                "Status : " + status + "\n" +
+                "Place Elected : " + (FinalPlace == null ? "null" : FinalPlace.getName()) + "\n" +
                 "";
         int index = 1;
         for (EventPlace ep : places.values())
@@ -169,7 +209,6 @@ class MeetingEvent extends Observable {
         return retString;
     }
 
-
     public Map<String, User> getMembers() {
         return members;
     }
@@ -179,6 +218,103 @@ class MeetingEvent extends Observable {
         setChanged();
     }
 
+    public Map<String, String> getParticipations() {
+        return participations;
+    }
+
+    public void setParticipations(Map<String, String> participations) {
+        this.participations = participations;
+    }
+
+    public Calendar convertStartDate() {
+        if (startDate != null && startDateLong != null) {
+            startDate.setTimeInMillis(startDateLong);
+        }
+        return startDate;
+    }
+
+    public void setStartDate(Calendar startDate) {
+        this.startDate = startDate;
+        updateStart();
+    }
+
+    public Calendar convertEndDate() {
+        if (endDate != null && endDateLong != null) {
+            endDate.setTimeInMillis(endDateLong);
+        }
+        return endDate;
+    }
+
+    public void setEndDate(Calendar endDate) {
+        this.endDate = endDate;
+        updateEnd();
+    }
+
+    private void updateStart() {
+        startDateLong = startDate.getTimeInMillis();
+    }
+
+    private void updateEnd() {
+        endDateLong = endDate.getTimeInMillis();
+    }
+
+    public void setStartime(int hh, int min) {
+        if (startDate == null)
+            startDate = (Calendar) Calendar.getInstance().clone();
+        startDate.set(Calendar.HOUR_OF_DAY, hh);
+        startDate.set(Calendar.MINUTE, min);
+    }
+
+    public void setEndTime(int hh, int min) {
+        if (endDate == null)
+            endDate = (Calendar) Calendar.getInstance().clone();
+        endDate.set(Calendar.HOUR_OF_DAY, hh);
+        endDate.set(Calendar.MINUTE, min);
+    }
+
+    /*public User getOrganizer() {
+        return organizer;
+    }*/
+
+    public void setStartDate(int yy, int mm, int dd) {
+        if (startDate == null)
+            startDate = (Calendar) Calendar.getInstance().clone();
+        startDate.set(yy, mm, dd);
+    }
+
+    public void setEndDate(int yy, int mm, int dd) {
+        if (endDate == null)
+            endDate = (Calendar) Calendar.getInstance().clone();
+        endDate.set(yy, mm, dd);
+    }
+
+    public void setParticipation(String participation) {
+        participations.put(UserProfile.getInstance().emailString, participation);
+    }
+
+    /* public boolean chosen() {
+         return (FinalPlace!=null);
+     }
+ */
+    public boolean amITheOrganizer() {
+        return UserProfile.getInstance().equals(organizer);
+    }
+
+    public Long getStartDateLong() {
+        return startDateLong;
+    }
+
+    public void setStartDateLong(Long startDateLong) {
+        this.startDateLong = startDateLong;
+    }
+
+    public Long getEndDateLong() {
+        return endDateLong;
+    }
+
+    public void setEndDateLong(Long endDateLong) {
+        this.endDateLong = endDateLong;
+    }
 
     public User getOrganizer() {
         return organizer;
@@ -188,15 +324,24 @@ class MeetingEvent extends Observable {
         this.organizer = organizer;
     }
 
-
-
-   /* public boolean chosen() {
-        return (FinalPlace!=null);
+    public String getStatus() {
+        return status;
     }
 
-    public boolean amIOrganizer() {
-        return UserProfile.getInstance().equals(organizer);
-    }*/
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    class Code {
+        public static final String NOT_CREATED = "0L";
+        public static final String SETTING_PLACES = "1L";
+        public static final String RATING_PLACES = "2L";
+        public static final String ELECTING_PLACE = "3L";
+        public static final String PARTICIPATION = "4L";
+        public static final String END = "5L";
+    }
+
+
 }
 
 

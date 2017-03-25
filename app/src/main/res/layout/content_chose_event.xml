@@ -1,54 +1,164 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:weightSum="4"
+
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.example.abbas.tp2_inf8405_version_2_1.ChoseEventActivity"
     tools:showIn="@layout/activity_chose_event">
 
-    <RadioGroup
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/text"
-        android:id="@+id/myRadioGroup">
-
-    </RadioGroup>
-
-
-    <LinearLayout
+    <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:orientation="horizontal"
-        android:layout_height="wrap_content">
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:id="@+id/eventStartingDate"
-        android:onClick="showDatePickerDialog"/>
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:onClick="showTimePickerDialog"
-        android:id="@+id/eventStartingTime"/>
-    </LinearLayout>
+        android:layout_height="0dp"
+        android:layout_weight="2"
+        android:fillViewport="true">
 
-    <LinearLayout
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/place_selected_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:id="@+id/place_selected_desc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/group_radio_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <RadioGroup
+                    android:id="@+id/myRadioGroup"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                </RadioGroup>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:weightSum="2">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/start" />
+
+                        <TextView
+                            android:id="@+id/eventStartingDate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:onClick="showStartDatePickerDialog" />
+
+                        <TextView
+                            android:id="@+id/eventStartingTime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:onClick="showStartTimePickerDialog" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/end" />
+
+                        <TextView
+                            android:id="@+id/eventEndingDate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:onClick="showEndDatePickerDialog" />
+
+                        <TextView
+                            android:id="@+id/eventEndingTime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:onClick="showEndTimePickerDialog" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/description" />
+
+            </LinearLayout>
+
+            <RadioGroup
+                android:id="@+id/participate_radio_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:visibility="gone"
+                android:weightSum="3">
+
+                <RadioButton
+                    android:id="@+id/participate"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:onClick="onParticipateRadioButtonClicked"
+                    android:text="@string/participate" />
+
+                <RadioButton
+                    android:id="@+id/mayParticipate"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:onClick="onParticipateRadioButtonClicked"
+                    android:text="@string/mayParticipate" />
+
+                <RadioButton
+                    android:id="@+id/doNotParticipate"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:onClick="onParticipateRadioButtonClicked"
+                    android:text="@string/doNotParticipate" />
+            </RadioGroup>
+        </LinearLayout>
+    </android.support.v4.widget.NestedScrollView>
+
+    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
-        android:orientation="horizontal"
-        android:layout_height="wrap_content"
-        android:onClick="showDatePickerDialog"
-        android:id="@+id/eventEndingDate">
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:onClick="showTimePickerDialog"
-        android:id="@+id/eventEndingTime"/>
-    </LinearLayout>
-    <EditText
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:hint="string/description"/>
-
-
-</FrameLayout>
+        android:layout_height="0dp"
+        android:layout_weight="2"
+        tools:context="com.example.abbas.tp2_inf8405_version_2_1.ChoseEventActivity" />
+</LinearLayout>

@@ -5,9 +5,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="@dimen/activity_horizontal_margin"
-    android:orientation="vertical"
     android:background="@color/colorPrimary"
+    android:orientation="vertical"
+    android:padding="@dimen/activity_horizontal_margin"
     tools:context="com.example.abbas.tp2_inf8405_version_2_1.MainActivity">
 
     ---Credentials
@@ -19,16 +19,16 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:orientation="vertical">
             <EditText
                 android:id="@+id/email"
-                android:hint="Email"
-                android:textColor="@color/white"
-                android:text="abbas"
-                android:textColorHint="@color/light_grey"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:hint="Email"
+                android:text="lays"
+                android:textColor="@color/white"
+                android:textColorHint="@color/light_grey" />
 
             <EditText
                 android:id="@+id/pass"
@@ -36,8 +36,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:hint="Password"
-                android:text="test"
                 android:inputType="textPassword"
+                android:text="lays"
                 android:textColor="@color/white"
                 android:textColorHint="@color/light_grey" />
         </LinearLayout>
@@ -46,9 +46,9 @@
             android:id="@+id/login_button"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:background="@drawable/button_border"
             android:text="Login"
-            android:textColor="@color/white"
-            android:background="@drawable/button_border"/>
+            android:textColor="@color/white" />
     </LinearLayout>
 
     <Space
@@ -60,8 +60,8 @@
         android:id="@+id/signin_options"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:background="@drawable/layout_border"
+        android:orientation="vertical"
         android:padding="10dp">
         ---Groups selection
 

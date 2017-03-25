@@ -2,55 +2,129 @@ package com.example.abbas.tp2_inf8405_version_2_1;
 
 
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
+import android.util.Log;
 import android.view.View;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+
+import java.util.Calendar;
+
+import static com.example.abbas.tp2_inf8405_version_2_1.MeetingEvent.Code.PARTICIPATION;
 
 public class ChoseEventActivity extends EventActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d("Franck", " Instance Chose Event");
         setContentView(R.layout.activity_chose_event);
         initialisation();
+        //setDateTime();
+    }
+
+    private void setDateTime() {
+        Calendar rightNow = meetingEvent.convertStartDate();
+        if (rightNow == null) {
+            rightNow = Calendar.getInstance();
+        }
+        setStartDate(rightNow.get(Calendar.YEAR), rightNow.get(Calendar.MONTH), rightNow.get(Calendar.DAY_OF_MONTH));
+        setStartTime(rightNow.get(Calendar.HOUR_OF_DAY), rightNow.get(Calendar.MINUTE));
+        rightNow = meetingEvent.convertEndDate();
+        if (rightNow == null) {
+            rightNow = Calendar.getInstance();
+            rightNow.add(Calendar.HOUR_OF_DAY, 2);
+        }
+        setEndDate(rightNow.get(Calendar.YEAR), rightNow.get(Calendar.MONTH), +rightNow.get(Calendar.DAY_OF_MONTH));
+        setEndTime(rightNow.get(Calendar.HOUR_OF_DAY), rightNow.get(Calendar.MINUTE));
     }
 
 
-    public void showDatePickerDialog(View v) {
+    public void showEndDatePickerDialog(View v) {
         DialogFragment newFragment = new MyDateTimePicker.DatePickerFragment();
-        MyDateTimePicker.setView(v);
-        newFragment.show(getSupportFragmentManager(), "datePicker");
+        MyDateTimePicker.setStart(false);
+        newFragment.show(getSupportFragmentManager(), "End of the Event (Date)");
     }
 
-    public void showTimePickerDialog(View v) {
+    public void setEndDate(int yy, int mm, int dd) {
+        meetingEvent.setEndDate(yy, mm, dd);
+        ((TextView) findViewById(R.id.eventEndingDate)).setText(yy + "/" + (mm + 1) + "/" + dd);
+    }
+
+    public void showStartDatePickerDialog(View v) {
+        DialogFragment newFragment = new MyDateTimePicker.DatePickerFragment();
+        MyDateTimePicker.setStart(true);
+        newFragment.show(getSupportFragmentManager(), "Beginning of the Event (Date)");
+    }
+
+    public void setStartDate(int yy, int mm, int dd) {
+        meetingEvent.setStartDate(yy, mm, dd);
+        ((TextView) findViewById(R.id.eventStartingDate)).setText(yy + "/" + (mm + 1) + "/" + dd);
+    }
+
+    public void showEndTimePickerDialog(View v) {
         DialogFragment newFragment = new MyDateTimePicker.TimePickerFragment();
-        MyDateTimePicker.setView(v);
-        newFragment.show( getSupportFragmentManager(), "timePicker");
+        MyDateTimePicker.setStart(false);
+        newFragment.show(getSupportFragmentManager(), "End of the Event (Time)");
     }
 
-    public void setDatePicker( int yy, int mm, int dd){
-        ((TextView)MyDateTimePicker.getView()).setText(yy+"/"+(mm+1)+"/"+dd);
+    public void setEndTime(int hh, int min) {
+        meetingEvent.setEndTime(hh, min);
+        ((TextView) findViewById(R.id.eventEndingTime)).setText(hh + "h" + min);
     }
 
-    public void setTimePicker(int hh, int min){
-        ((TextView)MyDateTimePicker.getView()).setText(hh+"h"+min);
+    public void showStartTimePickerDialog(View v) {
+        DialogFragment newFragment = new MyDateTimePicker.TimePickerFragment();
+        MyDateTimePicker.setStart(true);
+        newFragment.show(getSupportFragmentManager(), "Beginning of the Event (Time)");
     }
 
-   /* public void setUpRadioGroup(){
-        LayoutInflater inflater = LayoutInflater.from(this);
+
+    public void setStartTime(int hh, int min) {
+        meetingEvent.setStartime(hh, min);
+        ((TextView) findViewById(R.id.eventStartingTime)).setText(hh + "h" + min);
+    }
+
+    public void setUpRadioGroup() {
+        //LayoutInflater inflater = getLayoutInflater();
+        //LinearLayout layout = (LinearLayout) findViewById(R.id.group_radio_layout);
         RadioGroup radioGroup = (RadioGroup) findViewById(R.id.myRadioGroup);
-        for (int k = 0; k < meetingEvent.getPlaces().size(); k++) {
-            View radioButtonView = inflater.inflate(R.layout.check_radio_button, null);
-            RadioButton radioButton = (RadioButton) radioButtonView
-                    .findViewById(R.id.radio_button);
-            radioButton.setText(answerValues.get(k));
+        radioGroup.removeAllViews();
+        for (EventPlace ep : meetingEvent.getPlaces().values()) {
+            RadioButton radioButtonView = new RadioButton(this);
+            radioButtonView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onRadioButtonClicked(v);
+                }
+            });
+            ep.setRadioButton(radioButtonView);
             radioGroup.addView(radioButtonView);
         }
-    }*/
+        //layout.addView(radioGroup);
+    }
+
+    public void onRadioButtonClicked(View view) {
+        // Is the button now checked?
+        boolean checked = ((RadioButton) view).isChecked();
+        if (checked) {
+            meetingEvent.setFinalPlace((EventPlace) view.getTag());
+        }
+    }
+
+    @Override
+    protected void nextAction() {
+        Log.d("Franck", " Save db");
+        //TODO Verifier qu'il y ait bien les dates
+        meetingEvent.setStatus(PARTICIPATION);
+        saveMeetingEvent();
+        //passParticipate();
+    }
+
+    @Override
+    protected void chosefinalPlace() {
+        setUpRadioGroup();
+        setDateTime();
+    }
 }

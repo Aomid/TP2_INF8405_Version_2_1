@@ -9,7 +9,6 @@ import android.support.v7.widget.Toolbar;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -27,7 +26,7 @@ import java.util.List;
 
 public class Group_Choice_Activity extends AppCompatActivity {
 
-    private String UserName, groupName ;
+    private String groupName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,22 +38,11 @@ public class Group_Choice_Activity extends AppCompatActivity {
 
         //Firebase pour cette partie
         Firebase.setAndroidContext(this);
-        Button createGroupe = (Button) findViewById(R.id.create_meeting_button);
-        EditText group = (EditText) findViewById(R.id.meetingName);
 
         ImageView userpic = (ImageView) findViewById(R.id.imageView2);
         TextView Username = (TextView) findViewById(R.id.Username);
-        Bundle extras = getIntent().getExtras();
-        String value = "";
-        String picture = "";
-
-        if (extras != null) {
-            value = extras.getString("username");
-        }
-        Username.setText("Welcome " + value);
-        UserName = value;
-        picture = extras.getString("picture");
-        byte[] decodedByteArray = android.util.Base64.decode(picture, Base64.DEFAULT);
+        Username.setText("Welcome " + UserProfile.getInstance().emailString);
+        byte[] decodedByteArray = android.util.Base64.decode(UserProfile.getInstance().profileImage, Base64.DEFAULT);
         Bitmap bit = BitmapFactory.decodeByteArray(decodedByteArray, 0, decodedByteArray.length);
         userpic.setRotation(-90);
         userpic.setImageBitmap(bit);
@@ -82,8 +70,7 @@ public class Group_Choice_Activity extends AppCompatActivity {
                     //tempGroup.add(String.valueOf(dsp.child("groupName").getValue()));
                     if (String.valueOf(dsp.child("meetingName").getValue()).equalsIgnoreCase(groupName)) {
                         groupExist = true;
-                        Toast.makeText(getApplicationContext(), "This group is existed.", Toast.LENGTH_SHORT).show();
-                        Toast.makeText(getApplicationContext(), "You joined it.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "This group exists.", Toast.LENGTH_SHORT).show();
                         break;
                     }
                 }

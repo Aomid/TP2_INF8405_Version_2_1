@@ -1,5 +1,11 @@
 package com.example.abbas.tp2_inf8405_version_2_1;
 
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RatingBar;
+import android.widget.TextView;
+
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -18,6 +24,7 @@ import java.util.logging.Logger;
  */
 
 public class EventPlace implements MyMarker {
+    public View view;
     private Map<String, Long> Votes = new HashMap<>();
     private String id;
     private String description;
@@ -27,6 +34,7 @@ public class EventPlace implements MyMarker {
     private Double latitude;
     private Double longitude;
     private Marker marker = null;
+    private LinearLayout placeView = null;
 
     public EventPlace() {
 
@@ -152,7 +160,6 @@ public class EventPlace implements MyMarker {
         return "Place{" + "id=" + id + ", icon=" + icon + ", name=" + name + ", latitude=" + latitude + ", longitude=" + longitude + '}';
     }
 
-
     @Override
     public MarkerOptions provideMarkerOptions() {
         return new MarkerOptions()
@@ -165,10 +172,6 @@ public class EventPlace implements MyMarker {
                 ;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     public void setMarker(Marker marker) {
         this.marker = marker;
         marker.setTag(this);
@@ -178,10 +181,41 @@ public class EventPlace implements MyMarker {
         return description;
     }
 
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public int findMyVote() {
         if(Votes.containsKey(UserProfile.getInstance().emailString))
             return Votes.get(UserProfile.getInstance().emailString).intValue();
         else
             return 0;
     }
+
+    public void setView(View view) {
+        this.view = view;
+        ((TextView) view.findViewById(R.id.place_selected_name)).setText(name);
+        ((TextView) view.findViewById(R.id.place_selected_desc)).setText(description);
+        ((RatingBar) view.findViewById(R.id.place_selected_rating)).setNumStars(3);
+    }
+
+    public void setRadioButton(RadioButton radioButton) {
+        radioButton.setTag(this);
+        radioButton.setText(name + "  (" + average() + "/5)");
+    }
+
+    public float average() {
+        float res = 0;
+        for (Long rating : Votes.values()) {
+            res += rating;
+        }
+        res /= Votes.values().size();
+        return res;
+    }
+
+
+    /*public LinearLayout placeView(){
+        if(placeView==null)
+        return new LinearLayout();
+    }*/
 }

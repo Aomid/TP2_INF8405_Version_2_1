@@ -7,14 +7,10 @@ package com.example.abbas.tp2_inf8405_version_2_1;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
-
 import android.app.TimePickerDialog;
-
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.text.format.DateFormat;
-import android.view.View;
 import android.widget.DatePicker;
 import android.widget.TimePicker;
 
@@ -22,15 +18,15 @@ import java.util.Calendar;
 
 public class MyDateTimePicker {
 
-    public static View getView() {
-        return view;
+    static boolean start = false;
+
+    public static boolean isStart() {
+        return start;
     }
 
-    public static void setView(View view) {
-        MyDateTimePicker.view = view;
+    public static void setStart(boolean view) {
+        MyDateTimePicker.start = view;
     }
-
-    static View view = null;
 
     public static class TimePickerFragment extends DialogFragment
             implements TimePickerDialog.OnTimeSetListener {
@@ -49,7 +45,11 @@ public class MyDateTimePicker {
 
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
             // Do something with the time chosen by the user
-            ((ChoseEventActivity)getActivity()).setTimePicker(hourOfDay,minute);
+            if (start) {
+                ((ChoseEventActivity) getActivity()).setStartTime(hourOfDay, minute);
+            } else {
+                ((ChoseEventActivity) getActivity()).setEndTime(hourOfDay, minute);
+            }
         }
     }
 
@@ -71,7 +71,11 @@ public class MyDateTimePicker {
 
         public void onDateSet(DatePicker view, int year, int month, int day) {
             // Do something with the date chosen by the user
-            ((ChoseEventActivity)getActivity()).setDatePicker(year,month,day);
+            if (start) {
+                ((ChoseEventActivity) getActivity()).setStartDate(year, month, day);
+            } else {
+                ((ChoseEventActivity) getActivity()).setEndDate(year, month, day);
+            }
         }
 
 

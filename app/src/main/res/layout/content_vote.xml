@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<android.support.v4.widget.NestedScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -30,24 +30,24 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:orientation="vertical"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
             <TextView
+                android:id="@+id/place_selected_name"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/place_selected_name"/>
+                android:layout_height="wrap_content" />
             <TextView
+                android:id="@+id/place_selected_desc"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/place_selected_desc"/>
+                android:layout_height="wrap_content" />
             <RatingBar
-                android:layout_width="wrap_content"
                 android:id="@+id/place_selected_rating"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:numStars="5"
                 android:rating="2"
                 android:stepSize="1.0"
-                android:visibility="gone"
-                android:layout_height="wrap_content" />
+                android:visibility="gone" />
         </LinearLayout>
 
 
@@ -59,6 +59,6 @@
             android:layout_height="wrap_content"
             tools:context="com.example.abbas.tp2_inf8405_version_2_1.Vote_Activity" />
     </LinearLayout>
-</FrameLayout>
+</android.support.v4.widget.NestedScrollView>
 
 

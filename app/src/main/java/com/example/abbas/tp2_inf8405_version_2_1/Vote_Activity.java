@@ -1,25 +1,17 @@
 package com.example.abbas.tp2_inf8405_version_2_1;
 
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+
+import static com.example.abbas.tp2_inf8405_version_2_1.MeetingEvent.Code.ELECTING_PLACE;
 
 public class Vote_Activity extends EventActivity {
 
@@ -63,7 +55,7 @@ public class Vote_Activity extends EventActivity {
     }
 
     private void showAverage(EventPlace ep) {
-
+        placeRating.setRating(ep.average());
     }
 
     private void showMyVote(EventPlace ep) {
@@ -96,9 +88,11 @@ public class Vote_Activity extends EventActivity {
                 .setTitle(R.string.dialog_title_save_ratings);
         builder.setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                saveMeetingEvent();
                 placeRating.setIsIndicator(true);
-
+                if (meetingEvent.allrated()) {
+                    meetingEvent.setStatus(ELECTING_PLACE);
+                }
+                saveMeetingEvent();
             }
         });
         builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -117,8 +111,9 @@ public class Vote_Activity extends EventActivity {
         if(voted || meetingEvent.rated()) {
             if(!placeRating.isIndicator()) {
                alertDialogSaveRatings();
+            } else {
+                Toast.makeText(this, "Already saved", Toast.LENGTH_SHORT).show();
             }
-            Toast.makeText(this, "Already saved", Toast.LENGTH_SHORT).show();
         }
         else {
             Toast.makeText(this, "You need to rate all places", Toast.LENGTH_SHORT).show();

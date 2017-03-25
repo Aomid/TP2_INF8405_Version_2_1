@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/group_radio_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <RadioGroup
+        android:id="@+id/myRadioGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+    </RadioGroup>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="2">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/start" />
+
+            <TextView
+                android:id="@+id/eventStartingDate"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:onClick="showStartDatePickerDialog" />
+
+            <TextView
+                android:id="@+id/eventStartingTime"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:onClick="showStartTimePickerDialog" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/end" />
+
+            <TextView
+                android:id="@+id/eventEndingDate"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:onClick="showEndDatePickerDialog" />
+
+            <TextView
+                android:id="@+id/eventEndingTime"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:onClick="showEndTimePickerDialog" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/description" />
+
+</LinearLayout>
