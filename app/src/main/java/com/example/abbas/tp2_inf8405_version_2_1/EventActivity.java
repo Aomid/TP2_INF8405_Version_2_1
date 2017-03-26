@@ -54,6 +54,7 @@ public class EventActivity extends LoggedActivity
     private GoogleMap map;
     private int intervalSelected=1;
     private int interval=1000;
+    private GoogleApiClient mGoogleApiClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -303,17 +304,13 @@ public class EventActivity extends LoggedActivity
 
 
 
-        mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(interval);
-        mLocationRequest.setFastestInterval(interval);
-        LocationServices.FusedLocationApi.requestLocationUpdates(
-                mGoogleApiClient, mLocationRequest, this);
-
-
+    //TODO Must be well implemented
     protected void createLocationRequest() {
         LocationRequest mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(interval);
         mLocationRequest.setFastestInterval(interval);
+      /*  LocationServices.FusedLocationApi.requestLocationUpdates(
+                mGoogleApiClient, mLocationRequest, this);*/
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
