@@ -11,6 +11,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.database.Exclude;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,7 +35,9 @@ public class EventPlace implements MyMarker, Comparable<EventPlace> {
     private String vicinity;// Address
     private Double latitude;
     private Double longitude;
+    @Exclude
     private Marker marker = null;
+    @Exclude
     private LinearLayout placeView = null;
 
     public EventPlace() {
@@ -167,13 +170,16 @@ public class EventPlace implements MyMarker, Comparable<EventPlace> {
                 .position(new LatLng(latitude, longitude))
                 //  .draggable(true)
                 .title(name)
-                .snippet(description)
+                //.snippet(description)
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE))
                 //.icon(BitmapDescriptorFactory.fromBitmap(ImageConverter.decodeIntoBitmap(icon)))
                 ;
     }
 
     public void setMarker(Marker marker) {
+        if(this.marker != null){
+            marker.remove();
+        }
         this.marker = marker;
         marker.setTag(this);
     }
@@ -211,7 +217,18 @@ public class EventPlace implements MyMarker, Comparable<EventPlace> {
             res += rating;
         }
         res /= Votes.values().size();
+       // Log.d("Franck","avg :"+ res);
         return res;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        boolean retVal = false;
+        if (o instanceof EventPlace) {
+            EventPlace another = (EventPlace) o;
+            retVal = another.getName().compareToIgnoreCase(name) == 0;
+        }
+        return retVal;
     }
 
     @Override

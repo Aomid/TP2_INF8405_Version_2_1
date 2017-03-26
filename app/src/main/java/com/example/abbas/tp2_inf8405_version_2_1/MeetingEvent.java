@@ -1,16 +1,13 @@
 package com.example.abbas.tp2_inf8405_version_2_1;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.util.Log;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.firebase.database.IgnoreExtraProperties;
+import com.google.firebase.database.Exclude;
 
-import java.io.ByteArrayOutputStream;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -22,7 +19,7 @@ import java.util.Observable;
  */
 
 
-@IgnoreExtraProperties
+
 class MeetingEvent extends Observable implements MyMeetingMarkers{
     private String ID;
     private String meetingName;
@@ -37,6 +34,7 @@ class MeetingEvent extends Observable implements MyMeetingMarkers{
     private Long nbPlacesMin = 3L, nbPlacesMax = 3L;
     private String status = Code.NOT_CREATED;
     private Long startDateLong = null, endDateLong = null;
+    @Exclude
     private Calendar startDate = null, endDate = null;
 
     public MeetingEvent (){
@@ -78,23 +76,26 @@ class MeetingEvent extends Observable implements MyMeetingMarkers{
         this.nbPlacesMax = nbPlacesMax;
     }
 
-    @JsonIgnore
+    @Exclude
     public void setDecodedPhoto(Bitmap image){
-        ByteArrayOutputStream bYtE = new ByteArrayOutputStream();
+        encodedPhoto= ImageConverter.encodeBitmap(image);
+        /*ByteArrayOutputStream bYtE = new ByteArrayOutputStream();
         image.compress(Bitmap.CompressFormat.WEBP, 100, bYtE); //On pourrait essayer d'autre CompressFormat si jamais le décodage marche pas.
         //image.recycle();
         byte[] byteArray = bYtE.toByteArray();
         String imageFile = com.firebase.client.utilities.Base64.encodeBytes(byteArray);
-        encodedPhoto = imageFile;
+        encodedPhoto = imageFile;*/
         setChanged();
     }
 
-    @JsonIgnore
+    @Exclude
     public Bitmap getGetDecodedImage(){
+
         try {
-            byte[] decodedByte = com.firebase.client.utilities.Base64.decode(encodedPhoto);
+            return ImageConverter.decodeIntoBitmap(encodedPhoto);
+            /*byte[] decodedByte = com.firebase.client.utilities.Base64.decode(encodedPhoto);
             Bitmap bitmap= BitmapFactory.decodeByteArray(decodedByte, 0, decodedByte.length);
-            return bitmap;
+            return bitmap;*/
         } catch(Exception e) {
             return null;
         }
@@ -167,11 +168,12 @@ class MeetingEvent extends Observable implements MyMeetingMarkers{
 
     }
 
-    public void addPlace(EventPlace instance) {
+    public boolean addPlace(EventPlace instance) {
         if (!places.containsValue(instance)) {
             places.put("Place " + (places.size() + 1), instance);
             setChanged();
-        }
+            return true;
+        }return false;
     }
 
     public boolean rated(){
@@ -408,6 +410,10 @@ class MeetingEvent extends Observable implements MyMeetingMarkers{
         }
     }
 
+
+    public void FocusEvent(MyMarker marker){
+
+    }
 
     class Code {
         public static final String NOT_CREATED = "0L";

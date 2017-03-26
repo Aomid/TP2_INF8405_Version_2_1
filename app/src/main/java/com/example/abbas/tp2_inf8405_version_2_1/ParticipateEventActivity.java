@@ -52,6 +52,18 @@ public class ParticipateEventActivity extends EventActivity {
     }
 
     @Override
+    protected void updateMeetingChanges() {
+        if (meetingEvent.getFinalPlace().retrieveMarker() == null)
+            meetingEvent.getFinalPlace().setMarker(map.addMarker(meetingEvent.provideMarkerFinalPlace()));
+        else {
+            if (!meetingEvent.getFinalPlace().retrieveMarker().isVisible()) {
+                meetingEvent.getFinalPlace().setMarker(map.addMarker(meetingEvent.provideMarkerFinalPlace()));
+            }
+        }
+        super.updateMeetingChanges();
+    }
+
+    @Override
     protected void nextAction() {
         saveMeetingEvent();
     }

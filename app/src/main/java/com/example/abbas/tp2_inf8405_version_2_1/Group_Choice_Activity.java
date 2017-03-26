@@ -4,25 +4,19 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Base64;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.firebase.client.Firebase;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class Group_Choice_Activity extends LoggedActivity {
 
@@ -34,11 +28,6 @@ public class Group_Choice_Activity extends LoggedActivity {
         setContentView(R.layout.activity_group__choice_);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-
-        //Firebase pour cette partie
-        Firebase.setAndroidContext(this);
-
         ImageView userpic = (ImageView) findViewById(R.id.imageView2);
         TextView Username = (TextView) findViewById(R.id.Username);
         Username.setText("Welcome " + UserProfile.getInstance().emailString);

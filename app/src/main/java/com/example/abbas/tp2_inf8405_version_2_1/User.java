@@ -4,6 +4,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.database.Exclude;
 import com.google.firebase.database.ValueEventListener;
 
 /**
@@ -14,7 +15,9 @@ public class User implements  MyMarker{
     public String emailString;
     public String passString;
     public String profileImage;
+    @Exclude
     public Marker marker;
+    @Exclude
     public ValueEventListener valueListener;
 
     public void setEmailString(String emailString) {
@@ -104,7 +107,7 @@ public class User implements  MyMarker{
                 .position(new LatLng(latitude, longitude))
                 //  .draggable(true)
                 .title(emailString)
-                .snippet(lastUpdate)
+                //.snippet(lastUpdate)
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
                 //.icon(BitmapDescriptorFactory.fromBitmap(ImageConverter.decodeIntoBitmap(icon)))
                 ;
@@ -117,6 +120,9 @@ public class User implements  MyMarker{
 
     @Override
     public void setMarker(Marker marker) {
+        if(this.marker != null){
+            marker.remove();
+        }
         this.marker=marker;
         marker.setTag(this);
     }

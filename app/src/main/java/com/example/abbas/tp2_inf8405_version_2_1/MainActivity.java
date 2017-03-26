@@ -23,7 +23,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import com.firebase.client.Firebase;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -35,7 +34,6 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
@@ -90,8 +88,6 @@ public class MainActivity extends AppCompatActivity {
         signupButton = (Button) findViewById(R.id.signup_button);
         setProfilePicButton = (Button) findViewById(R.id.set_profile_picture_button);
         profilePicture = (ImageView) findViewById(R.id.profilePicture);
-//create a Database instance
-        Firebase.setAndroidContext(this);
 
         if(GpsTracker.getInstance()== null){
             startService(new Intent(this, GpsTracker.class));

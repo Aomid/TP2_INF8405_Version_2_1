@@ -1,38 +1,25 @@
 package com.example.abbas.tp2_inf8405_version_2_1;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
+
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.location.Location;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.RadioButton;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.firebase.client.Firebase;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -50,11 +37,7 @@ public class EventActivity extends LoggedActivity
     public TextView placeDescription= null;
     public RatingBar placeRating= null;
     public EventPlace current_place_event = null;
-
-    private GoogleMap map;
-    private int intervalSelected=1;
-    private int interval=1000;
-    private GoogleApiClient mGoogleApiClient;
+    protected GoogleMap map;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +50,6 @@ public class EventActivity extends LoggedActivity
         initViews();
         initAppbar();
         initLocalisation();
-
         initMap();
         initDatabase();
     }
@@ -129,12 +111,11 @@ public class EventActivity extends LoggedActivity
 
 
     private void initDatabase() {
-        //Firebase pour cette partie
-        Firebase.setAndroidContext(this);
         retrieveMeetingEvent();
     }
 
     public void initMap(){
+        Log.d("Franck", "Init Map");
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -142,7 +123,7 @@ public class EventActivity extends LoggedActivity
 
 
     public void retrieveMeetingEvent() {
-
+        Log.d("Franck", "Add Retrieve Event Request");
         Bundle extras = getIntent().getExtras();
         final String event_Id = extras.getString("Meeting_ID");
         DatabaseReference myRef = FirebaseDatabase.getInstance().getReference().child("Groups").child(event_Id);
@@ -168,46 +149,45 @@ public class EventActivity extends LoggedActivity
     }
 
     private void addUserListeners() {
+        Log.d("Franck", "add Listeners");
         for (User user : meetingEvent.getMembers().values()){
             getUserLastLocation(user);
         }
     }
 
     private void removeUserListeners() {
+        Log.d("Franck", "Remove Listeners");
         DatabaseReference myParentRef = FirebaseDatabase.getInstance().getReference().child("Users");
-        for (User user : meetingEvent.getMembers().values()){
-            if(user.findEventListener() != null) {
-                myParentRef.child(user.emailString).removeEventListener(user.findEventListener());
-                user.setValueListener(null);
+        if(meetingEvent != null){
+            for (User user : meetingEvent.getMembers().values()){
+                if(user.findEventListener() != null) {
+                    myParentRef.child(user.emailString).removeEventListener(user.findEventListener());
+                    user.setValueListener(null);
+                }
             }
         }
     }
 
     protected void updateMeetingChanges() {
+        Log.d("Franck", "Update Changes");
         if(map != null) {
             if(meetingEvent.getOrganizer().retrieveMarker() == null)
-                meetingEvent.getOrganizer().setMarker(map.addMarker(meetingEvent.provideMarkerFinalPlace()));
-            if(meetingEvent.getFinalPlace().retrieveMarker() == null)
-                meetingEvent.getFinalPlace().setMarker(map.addMarker(meetingEvent.provideMarkerOrganizer()));
-
+                meetingEvent.getOrganizer().setMarker(map.addMarker(meetingEvent.provideMarkerOrganizer()));
+            else {
+                if (!meetingEvent.getOrganizer().retrieveMarker().isVisible())
+                    meetingEvent.getOrganizer().setMarker(map.addMarker(meetingEvent.provideMarkerOrganizer()));
+            }
             for (User user : meetingEvent.getMembers().values()){
                 if(user.retrieveMarker() == null && user.getLatitude()!= null && user.getLongitude()!=null){
                     user.setMarker(map.addMarker(user.provideMarkerOptions()));
                 }
             }
             for (EventPlace ep : meetingEvent.getPlaces().values()) {
-                if (ep.retrieveMarker() == null) {
+                if (ep.retrieveMarker() == null && !ep.equals(meetingEvent.getFinalPlace())) {
                     ep.setMarker(map.addMarker(ep.provideMarkerOptions()));
                 }
             }
 
-
-           /* EventPlace ep = meetingEvent.getFinalPlace();
-            if(ep!=null) {
-                if (ep.retrieveMarker() == null) {
-                    ep.setMarker(map.addMarker(ep.provideMarkerOptions()));
-                }
-            }*/
         }else{
             Log.d("Franck", "map null");
         }
@@ -283,35 +263,8 @@ public class EventActivity extends LoggedActivity
     public void saveMeetingEvent() {
         Log.d("Franck", "Save");
         Log.d("Franck", meetingEvent.detailsIntoString());
-
         DatabaseReference addGroup = FirebaseDatabase.getInstance().getReference().child("Groups");
         addGroup.child(meetingEvent.getID()).setValue(meetingEvent);
-    }
-
-    public void showDialogPlace(LatLng latlng) {
-        addDialog = new AddPlaceDialog();
-        EventPlace ep = new EventPlace(latlng.latitude, latlng.longitude);
-        addDialog.setPlace(ep);
-        Log.d("Franck", meetingEvent.detailsIntoString());
-        addDialog.show(getFragmentManager(),"Place");
-    }
-
-    public void addPlace(EventPlace place) {
-        meetingEvent.addPlace(place);
-        place.setMarker(map.addMarker(place.provideMarkerOptions()));
-        saveMeetingEvent();
-    }
-
-
-
-    //TODO Must be well implemented
-    protected void createLocationRequest() {
-        LocationRequest mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(interval);
-        mLocationRequest.setFastestInterval(interval);
-      /*  LocationServices.FusedLocationApi.requestLocationUpdates(
-                mGoogleApiClient, mLocationRequest, this);*/
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
 
@@ -339,42 +292,6 @@ public class EventActivity extends LoggedActivity
 
     }*/
 
-    public void setupMap() {
-        // Do a null check to confirm that we have not already instantiated the map.
-        if (map == null) {
-            // Try to obtain the map from the SupportMapFragment.
-            //map = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map));
-
-            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
-                return;
-            }
-            map.setMyLocationEnabled(true);
-            // Check if we were successful in obtaining the map.
-            if (map != null) {
-
-
-                map.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
-
-                    @Override
-                    public void onMyLocationChange(Location arg0) {
-                        // TODO Auto-generated method stub
-
-                        map.addMarker(new MarkerOptions().position(new LatLng(arg0.getLatitude(), arg0.getLongitude())).title("It's Me!"));
-                    }
-                });
-
-            }
-        }
-    }
-
-
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
@@ -391,48 +308,6 @@ public class EventActivity extends LoggedActivity
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
-        setupMap();
-        //45.498838, -73.616995
-        map.setMyLocationEnabled(true);
-//        googleMap.setMyLocationEnabled(true);
-//        Location myLocation = googleMap.getMyLocation();  //Nullpointer exception.........
-//        LatLng myLatLng = new LatLng(myLocation.getLatitude(),
-//                myLocation.getLongitude());
-        LatLng latLng = new LatLng(45.498838, -73.616995);
-        map.addMarker(new MarkerOptions()
-                .position(latLng)
-                .draggable(true)
-                .title("Your location"));
-        //saveCurrentUserLocation(latitude, longitude);
-    }
-
-
-
-    //this method updates Latitude and Longitude of users in Database when they login
-    public void saveCurrentUserLocation(final double latitude, final double longitude) {
-        final DatabaseReference update = FirebaseDatabase.getInstance().getReference("Users");
-        update.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                String tempUsername;
-                int i = (int) dataSnapshot.getChildrenCount();
-                for (DataSnapshot dsp : dataSnapshot.getChildren()) {
-                    dsp.getKey();
-                    tempUsername = String.valueOf(dsp.child("emailString").getValue());
-                    if (tempUsername.equalsIgnoreCase(UserProfile.getInstance().emailString)) {
-                        String temp = update.getKey();
-                        dsp.getRef().child("latitude").setValue(latitude);
-                        dsp.getRef().child("longitude").setValue(longitude);
-                        break;
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Toast.makeText(EventActivity.this, "There is a error in update", Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
 
@@ -463,13 +338,7 @@ public class EventActivity extends LoggedActivity
 
     @Override
     public void onMarkerDragEnd(Marker marker) {
-        Toast.makeText(EventActivity.this, "onMarkerDragEnd", Toast.LENGTH_SHORT).show();
-        // getting the Co-ordinates
-        //  latitude = marker.getPosition().latitude;
-        //  longitude = marker.getPosition().longitude;
-
-        //move to current position
-        //moveMap();
+        //Toast.makeText(EventActivity.this, "onMarkerDragEnd", Toast.LENGTH_SHORT).show();
     }
 
 
@@ -484,12 +353,6 @@ public class EventActivity extends LoggedActivity
     public boolean onOptionsItemSelected(MenuItem item) {
 
         switch (item.getItemId()) {
-            case R.id.action_settings: {
-                setContentView(R.layout.activity_set_interval);
-
-                Toast.makeText(getApplicationContext(), "test", Toast.LENGTH_LONG).show();
-                return true;
-            }
 
             case R.id.action_ok:
                 nextAction();
@@ -509,6 +372,10 @@ public class EventActivity extends LoggedActivity
 
     protected void quit_group() {
         DatabaseReference delete=FirebaseDatabase.getInstance().getReference().child("Groups");
+        /*
+        meetingEvent.removeMember(UserProfile.getInstance());
+        saveMeeting();
+        finish();*/
         delete.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -552,60 +419,6 @@ public class EventActivity extends LoggedActivity
         // startActivityForResult(intent, 1);
     }
 
-
-
-        public void onRadioButtonClicked(View view) {
-            // Is the button now checked?
-            boolean checked = ((RadioButton) view).isChecked();
-
-            // Check which radio button was clicked
-            switch(view.getId()) {
-                case R.id.one:
-                    if (checked)
-                        intervalSelected=1;
-                        break;
-                case R.id.five:
-                    if (checked)
-                        intervalSelected=2;
-                        break;
-                case R.id.ten:
-                    if(checked)
-                       intervalSelected=3;
-                        break;
-                case R.id.thirty:
-                    if(checked)
-                        intervalSelected=4;
-                        break;
-            }
-        }
-
-    public void saveClick(View view) {
-        switch (intervalSelected){
-            case 1:
-                interval=60000;
-                Toast.makeText(getApplicationContext(),"Location update interval is One minute",
-                        Toast.LENGTH_SHORT).show();
-                break;
-            case 2:
-                interval=300000;
-                Toast.makeText(getApplicationContext(),"Location update interval is Five minute",
-                        Toast.LENGTH_SHORT).show();
-                break;
-            case 3:
-                interval=600000;
-                Toast.makeText(getApplicationContext(),"Location update interval is Ten minute",
-                        Toast.LENGTH_SHORT).show();
-                break;
-            case 4:
-                    interval=1800000;
-                Toast.makeText(getApplicationContext(),"Location update interval is Thirty minute",
-                        Toast.LENGTH_SHORT).show();
-                break;
-
-        }
-
-    }
-
     public void getUserLastLocation(User userm){
         final String name = userm.emailString;
         DatabaseReference myRef = FirebaseDatabase.getInstance().getReference().child("Users").child(userm.emailString);
@@ -614,7 +427,7 @@ public class EventActivity extends LoggedActivity
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
                 meetingEvent.changeUser(user);
-                Log.d("Franck","User change"+name);
+                Log.d("Franck","User change : "+user.emailString);
                 updateMeetingChanges();
             }
 

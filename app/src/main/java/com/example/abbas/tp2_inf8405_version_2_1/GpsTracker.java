@@ -1,11 +1,7 @@
 package com.example.abbas.tp2_inf8405_version_2_1;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.Service;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -14,7 +10,6 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -66,9 +61,12 @@ public class GpsTracker extends Service implements LocationListener,
     }
 
     public static void setMinTimeBwUpdates(long minTimeBwUpdates) {
-        MIN_TIME_BW_UPDATES = minTimeBwUpdates;
+        MIN_TIME_BW_UPDATES = minTimeBwUpdates *  1000 * 60;
         getInstance().removeUpdates();
         getInstance().getLocationUpdates();
+        if(getInstance().googleServiceAvailable()){
+            getInstance().makeGoogleApiRequest(null);
+        }
     }
 
     // The minimum time between updates in milliseconds
@@ -96,6 +94,8 @@ public class GpsTracker extends Service implements LocationListener,
             // Getting network status
             isNetworkEnabled = locationManager
                     .isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+
+            Log.d("Franck", "Interval : "+MIN_TIME_BW_UPDATES );
 
             if (!isGPSEnabled && !isNetworkEnabled) {
                 // No network provider is enabled
@@ -250,8 +250,8 @@ public class GpsTracker extends Service implements LocationListener,
     {
         GpsTracker.gpsTrackerInstance = this;
         initializeLocationManager();
-        getLocationUpdates();
         initApiCLient();
+        getLocationUpdates();
         Log.d("Franck", "creation tracker");
         mGoogleApiClient.connect();
     }
@@ -260,6 +260,9 @@ public class GpsTracker extends Service implements LocationListener,
     public void removeUpdates(){
         if (locationManager != null) {
             locationManager.removeUpdates(this);
+        }
+        if (LocationServices.FusedLocationApi!= null) {
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient,this);
         }
     }
 
@@ -279,7 +282,10 @@ public class GpsTracker extends Service implements LocationListener,
 
     @Override
     public void onConnected(Bundle connectionHint) {//@NotNull Bundle bundle) {
+        makeGoogleApiRequest(connectionHint);
+    }
 
+    private void makeGoogleApiRequest(Bundle connectionHint) {
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
@@ -292,8 +298,9 @@ public class GpsTracker extends Service implements LocationListener,
         }
 
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(60000);
-        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setInterval(MIN_TIME_BW_UPDATES );
+        mLocationRequest.setFastestInterval(MIN_TIME_BW_UPDATES );
+        Log.d("Franck", "API Interval : "+MIN_TIME_BW_UPDATES );
         LocationServices.FusedLocationApi.requestLocationUpdates(
                 mGoogleApiClient, mLocationRequest,  this);
 
