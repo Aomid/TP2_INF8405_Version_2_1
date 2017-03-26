@@ -1,13 +1,43 @@
 package com.example.abbas.tp2_inf8405_version_2_1;
 
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.database.ValueEventListener;
+
 /**
  * Created by Abbas on 3/13/2017.
  */
 
-public class User {
+public class User implements  MyMarker{
     public String emailString;
     public String passString;
     public String profileImage;
+    public Marker marker;
+    public ValueEventListener valueListener;
+
+    public void setEmailString(String emailString) {
+        this.emailString = emailString;
+    }
+
+    public void setPassString(String passString) {
+        this.passString = passString;
+    }
+
+    public void setProfileImage(String profileImage) {
+        this.profileImage = profileImage;
+    }
+
+    public String getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public void setLastUpdate(String lastUpdate) {
+        this.lastUpdate = lastUpdate;
+    }
+
+    public String lastUpdate = null;
     public Double latitude;
 
     public Double getLatitude() {
@@ -28,16 +58,14 @@ public class User {
 
     public Double longitude;
 
-    public User()
-    {
-    }
+    public User() {}
 
-    public User(String emailString, String profileImage)
+   /* public User(String emailString, String profileImage)
     {
         this.emailString=emailString;
         this.profileImage=profileImage;
         this.passString=null;
-    }
+    }*/
 
     public User(String emailString,String passString, String profileImage)
     {
@@ -45,6 +73,20 @@ public class User {
         this.passString=passString;
         this.profileImage=profileImage;
     }
+
+    public String getEmailString() {
+        return emailString;
+    }
+
+    public String getPassString() {
+        return passString;
+    }
+
+    public String getProfileImage() {
+        return profileImage;
+    }
+
+
 
     @Override
     public boolean equals(Object o){
@@ -54,5 +96,36 @@ public class User {
             retVal = another.emailString.compareToIgnoreCase(emailString) == 0;
         }
         return retVal;
+    }
+
+    @Override
+    public MarkerOptions provideMarkerOptions() {
+         return new MarkerOptions()
+                .position(new LatLng(latitude, longitude))
+                //  .draggable(true)
+                .title(emailString)
+                .snippet(lastUpdate)
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
+                //.icon(BitmapDescriptorFactory.fromBitmap(ImageConverter.decodeIntoBitmap(icon)))
+                ;
+    }
+
+    @Override
+    public Marker retrieveMarker() {
+        return marker;
+    }
+
+    @Override
+    public void setMarker(Marker marker) {
+        this.marker=marker;
+        marker.setTag(this);
+    }
+
+    public void setValueListener(ValueEventListener valueListener) {
+        this.valueListener = valueListener;
+    }
+
+    public ValueEventListener findEventListener() {
+        return valueListener;
     }
 }

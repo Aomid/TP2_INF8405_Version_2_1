@@ -93,6 +93,10 @@ public class MainActivity extends AppCompatActivity {
 //create a Database instance
         Firebase.setAndroidContext(this);
 
+        if(GpsTracker.getInstance()== null){
+            startService(new Intent(this, GpsTracker.class));
+        }
+        GpsTracker.setCurrentActivity(null);
 
         /*loginButton.setEnabled(false);
         signupButton.setEnabled(false);
@@ -187,53 +191,25 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void checkUserExistance(final String callByWhichMethod)
-    {
 
+
+    public void checkUserExistance(final String callByWhichMethod) {
         final String emailString=email.getText().toString();
         final String passString=password.getText().toString();
         DatabaseReference readMethod= FirebaseDatabase.getInstance().getReference("Users");
-       // DatabaseReference myref=readMethod.child("Users").child("username");
-
-        readMethod.addValueEventListener(new ValueEventListener() {
+        readMethod.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-
-                List<String> tempUser = new ArrayList<String>();
-                List<String> tempPass = new ArrayList<String>();
-                List<String> tempImage=new ArrayList<String>();
                 boolean userPassCorrect=false;
                 boolean res=false;
-
-                //Toast.makeText(getApplicationContext(),"zoooort", Toast.LENGTH_SHORT).show();
-                int i = (int) dataSnapshot.getChildrenCount();
-
-                for (DataSnapshot dsp :  dataSnapshot.getChildren())
-                {
-                    dsp.getKey();
-                    //Toast.makeText(getApplicationContext(), "Teststtttt : " + i, Toast.LENGTH_LONG).show();
-                 //    test.add(String.valueOf(dsp.child("emailString").getValue()));
-                    //Toast.makeText(getApplicationContext(),"dool:  "+dsp.child("Users").child("username").getValue().toString(),Toast.LENGTH_SHORT).show();
-                    tempUser.add(String.valueOf(dsp.child("emailString").getValue()));
-                    tempPass.add(String.valueOf(dsp.child("passString").getValue()));
-                    tempImage.add(String.valueOf(dsp.child("profileImage").getValue()));
-                }
-                int findPass=0;
-                for (String str : tempUser) {
-                     if (str.equalsIgnoreCase(emailString)) {
-                        res = true;
-                         //Toast.makeText(getApplicationContext(),str, Toast.LENGTH_SHORT).show();
-                         break;
-                    }
-                    findPass++;
-                }
-                if(findPass<tempPass.size()&& res)
-                    if((String.valueOf(tempPass.get(findPass))).equalsIgnoreCase(passString)) {
+                if(dataSnapshot.hasChild(emailString)) {
+                    res = true;
+                    DataSnapshot dsp_result = dataSnapshot.child(emailString);
+                    if(String.valueOf(dsp_result.child("passString").getValue()).equalsIgnoreCase(passString) ){
                         userPassCorrect = true;
-                        profileImageOnString=tempImage.get((findPass));
+                        profileImageOnString=String.valueOf(dsp_result.child("profileImage").getValue());
                     }
-                //Toast.makeText(getApplicationContext(), (String.valueOf(userPassCorrect)), Toast.LENGTH_LONG).show();
-
+                }
                 if (!res && callByWhichMethod.equalsIgnoreCase("signup")) {
                     addNewUser();
                  //   Toast.makeText(getApplicationContext(),"The new user is created.",Toast.LENGTH_SHORT).show();
@@ -269,47 +245,23 @@ public class MainActivity extends AppCompatActivity {
     {
         String UserName=email.getText().toString();
         //Toast.makeText(getApplicationContext(),"Username and password is correct",Toast.LENGTH_LONG).show();
-        UserProfile.setINSTANCE(new User(UserName,profileImageOnString));
+        UserProfile.setINSTANCE(new User(UserName,password.getText().toString(),profileImageOnString));
         Intent intent=new Intent(getApplicationContext(),Group_Choice_Activity.class);
         startActivity(intent);
-
-
-
     }
 
     public void addNewUser()
     {
         final String emailString=email.getText().toString();
         final String passString=password.getText().toString();
-
-        DatabaseReference addUser=FirebaseDatabase.getInstance().getReference("Users");
-        //
-        // DatabaseReference userRef=myRef.child("users");
-
-        //userRef.setValue(email.getText().toString());
-        //to change user profile photo to a binary file
         BitmapDrawable drawable = (BitmapDrawable) profilePicture.getDrawable();
         Bitmap image = drawable.getBitmap();
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         image.compress(Bitmap.CompressFormat.JPEG, 100, stream);
         byte[] byteFormat = stream.toByteArray();
         imageBinaryFile = Base64.encodeToString(byteFormat, Base64.NO_WRAP);
-
-       // myRef.child("users/username").push().setValue(emailString);
-       // myRef.child("users/password").push().setValue(passString);
-       // myRef.child("users/profileImage").push().setValue(imageBinaryFile);
-
-        String ID=addUser.push().getKey();
-        User user=new User(emailString,passString,imageBinaryFile);
-        addUser.child(ID).setValue(user);
-
-        //addUser.push().child("password").setValue(passString);
-        //addUser.push().child("profileImage").setValue(imageBinaryFile);
-
-        //addUser.push().setValue(emailString);
-        //addUser.push().setValue(passString);
-        //addUser.push().setValue(imageBinaryFile);
-   // Toast.makeText(getApplicationContext(),"Get key: "+ID,Toast.LENGTH_SHORT).show();
+        UserProfile.setINSTANCE(new User(emailString,passString,imageBinaryFile));
+        LoggedActivity.saveUser();
     }
 
     public void userNames(Map<String, Object> users)

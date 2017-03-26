@@ -36,11 +36,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-public class EventActivity extends AppCompatActivity
+public class EventActivity extends LoggedActivity
         implements OnMapReadyCallback,
-        com.google.android.gms.location.LocationListener,
-        GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener,
         GoogleMap.OnMapLongClickListener,
         GoogleMap.OnMarkerDragListener,
         GoogleMap.OnMarkerClickListener{
@@ -50,9 +47,7 @@ public class EventActivity extends AppCompatActivity
     public TextView placeDescription= null;
     public RatingBar placeRating= null;
     public EventPlace current_place_event = null;
-    Location mLastLocation,mLastKnownLocation;
-    LocationRequest mLocationRequest;
-    private GoogleApiClient mGoogleApiClient;
+
     private GoogleMap map;
 
     @Override
@@ -66,7 +61,7 @@ public class EventActivity extends AppCompatActivity
         initViews();
         initAppbar();
         initLocalisation();
-        initApiCLient();
+
         initMap();
         initDatabase();
     }
@@ -82,6 +77,12 @@ public class EventActivity extends AppCompatActivity
     }
 
     protected void showPlace(Marker marker) {
+        if(marker == null){
+            Log.d("Franck","Merker null");
+        }
+        if(marker.getTag()== null){
+            Log.d("Franck","Tag null");
+        }
         current_place_event = (EventPlace) marker.getTag();
         placeName.setText(current_place_event.getName());
         placeDescription.setText(current_place_event.getDescription());
@@ -91,6 +92,11 @@ public class EventActivity extends AppCompatActivity
     protected void showRating() {
         placeRating.setVisibility(View.VISIBLE);
         placeRating.setMax(5);
+    }
+
+    protected void showAverage(EventPlace ep) {
+        placeRating.setStepSize(0.1f);
+        placeRating.setRating(ep.average());
     }
 
 
@@ -106,24 +112,15 @@ public class EventActivity extends AppCompatActivity
     }
 
     private void initLocalisation() {
-        GpsTracker gps = new GpsTracker(this);
+        /*GpsTracker gps = new GpsTracker(this);
         if (gps.canGetLocation) {
             UserProfile.getInstance().setLatitude(gps.getLatitude());
             UserProfile.getInstance().setLongitude(gps.getLongitude());
             //Toast.makeText(this, "Longitude = " + (String.valueOf(longitude) + " Latitude= " + (String.valueOf(latitude))), Toast.LENGTH_LONG).show();
-        }
+        }*/
     }
 
-    private void initApiCLient() {
-        if (mGoogleApiClient == null) {
-            mGoogleApiClient = new GoogleApiClient.Builder(this)
-                    .addConnectionCallbacks(this)
-                    .addOnConnectionFailedListener(this)
-                    .addApi(LocationServices.API)
-                    .build();
-        }
 
-    }
 
     private void initDatabase() {
         //Firebase pour cette partie
@@ -139,18 +136,20 @@ public class EventActivity extends AppCompatActivity
 
 
     public void retrieveMeetingEvent() {
+
         Bundle extras = getIntent().getExtras();
         final String event_Id = extras.getString("Meeting_ID");
         DatabaseReference myRef = FirebaseDatabase.getInstance().getReference().child("Groups").child(event_Id);
         myRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                removeUserListeners();
                 meetingEvent = dataSnapshot.getValue(MeetingEvent.class);
                 meetingEvent.setID(event_Id);
-
                 Log.d("Franck", "Retrieve");
                 Log.d("Franck", meetingEvent.detailsIntoString());
                 changeActivity();
+                addUserListeners();
                 updateMeetingChanges();
 
             }
@@ -162,27 +161,47 @@ public class EventActivity extends AppCompatActivity
         });
     }
 
-    protected void updateMeetingChanges() {
-        /*
+    private void addUserListeners() {
         for (User user : meetingEvent.getMembers().values()){
-            user.retrieveMarker() == null){
-                user.setMarker(map.addMarker(user.provideMarkerOptions()));
+            getUserLastLocation(user);
+        }
+    }
+
+    private void removeUserListeners() {
+        DatabaseReference myParentRef = FirebaseDatabase.getInstance().getReference().child("Users");
+        for (User user : meetingEvent.getMembers().values()){
+            if(user.findEventListener() != null) {
+                myParentRef.child(user.emailString).removeEventListener(user.findEventListener());
+                user.setValueListener(null);
             }
-        }*/
+        }
+    }
 
+    protected void updateMeetingChanges() {
         if(map != null) {
+            if(meetingEvent.getOrganizer().retrieveMarker() == null)
+                meetingEvent.getOrganizer().setMarker(map.addMarker(meetingEvent.provideMarkerFinalPlace()));
+            if(meetingEvent.getFinalPlace().retrieveMarker() == null)
+                meetingEvent.getFinalPlace().setMarker(map.addMarker(meetingEvent.provideMarkerOrganizer()));
 
+            for (User user : meetingEvent.getMembers().values()){
+                if(user.retrieveMarker() == null && user.getLatitude()!= null && user.getLongitude()!=null){
+                    user.setMarker(map.addMarker(user.provideMarkerOptions()));
+                }
+            }
             for (EventPlace ep : meetingEvent.getPlaces().values()) {
                 if (ep.retrieveMarker() == null) {
                     ep.setMarker(map.addMarker(ep.provideMarkerOptions()));
                 }
             }
-            EventPlace ep = meetingEvent.getFinalPlace();
+
+
+           /* EventPlace ep = meetingEvent.getFinalPlace();
             if(ep!=null) {
                 if (ep.retrieveMarker() == null) {
                     ep.setMarker(map.addMarker(ep.provideMarkerOptions()));
                 }
-            }
+            }*/
         }else{
             Log.d("Franck", "map null");
         }
@@ -230,7 +249,11 @@ public class EventActivity extends AppCompatActivity
     }*/
 
     protected void chosefinalPlace() {
-        Intent intent = new Intent(getApplicationContext(), ChoseEventActivity.class);
+        Intent intent = null ;
+        if(meetingEvent.amITheOrganizer())
+            intent = new Intent(getApplicationContext(), ChoseEventActivity.class);
+        else
+            intent = new Intent(getApplicationContext(), Vote_Activity.class);
         intent.putExtra("Meeting_ID", meetingEvent.getID());
         startActivity(intent);
         finish();
@@ -254,6 +277,7 @@ public class EventActivity extends AppCompatActivity
     public void saveMeetingEvent() {
         Log.d("Franck", "Save");
         Log.d("Franck", meetingEvent.detailsIntoString());
+
         DatabaseReference addGroup = FirebaseDatabase.getInstance().getReference().child("Groups");
         addGroup.child(meetingEvent.getID()).setValue(meetingEvent);
     }
@@ -272,69 +296,7 @@ public class EventActivity extends AppCompatActivity
         saveMeetingEvent();
     }
 
-    @Override
-    public void onConnected(Bundle connectionHint) {//@NotNull Bundle bundle) {
 
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-
-        mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(60000);
-        mLocationRequest.setFastestInterval(5000);
-        LocationServices.FusedLocationApi.requestLocationUpdates(
-                mGoogleApiClient, mLocationRequest, this);
-
-        mLastKnownLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        if (mLastLocation != null) {
-            String x, y;
-            x = (String.valueOf(mLastLocation.getLatitude()));
-            y = (String.valueOf(mLastLocation.getLongitude()));
-            Toast.makeText(getApplicationContext(), "Location= " + x + "  " + y, Toast.LENGTH_LONG).show();
-        } else setupMap();
-    }
-
-
-    @Override
-    public void onConnectionSuspended(int i) {
-
-    }
-
-    //check for google service avalability
-
-    public boolean googleServiceAvailable() {
-        GoogleApiAvailability api = GoogleApiAvailability.getInstance();
-        int isAvailable = api.isGooglePlayServicesAvailable(this);
-        if (isAvailable == ConnectionResult.SUCCESS) {
-            return true;
-        } else if (api.isUserResolvableError(isAvailable)) {
-            Dialog dialog = api.getErrorDialog(this, isAvailable, 0);
-            dialog.show();
-        } else {
-            Toast.makeText(this, "Can not connect to google play service.", Toast.LENGTH_LONG).show();
-        }
-        return false;
-    }
-
-
-    @Override
-    protected void onStart() {
-        mGoogleApiClient.connect();
-        super.onStart();
-    }
-
-    @Override
-    protected void onStop() {
-        mGoogleApiClient.disconnect();
-        super.onStop();
-    }
 
 
 
@@ -346,15 +308,7 @@ public class EventActivity extends AppCompatActivity
     }
 
 
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-
-    }
    /* private void moveMap() {
         /**
          * Creating the latlng object to store lat, long coordinates
@@ -558,12 +512,31 @@ public class EventActivity extends AppCompatActivity
 
 
     public void takePhoto(View view) {
-
         Toast.makeText(getApplicationContext(),"Camera test",Toast.LENGTH_LONG).show();
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-       // f = Uri.fromFile(getMediaFile());
+        // f = Uri.fromFile(getMediaFile());
         intent.putExtra(MediaStore.EXTRA_OUTPUT,true);
         startActivity(intent);
         // startActivityForResult(intent, 1);
+    }
+
+    public void getUserLastLocation(User userm){
+        final String name = userm.emailString;
+        DatabaseReference myRef = FirebaseDatabase.getInstance().getReference().child("Users").child(userm.emailString);
+        userm.setValueListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                User user = dataSnapshot.getValue(User.class);
+                meetingEvent.changeUser(user);
+                Log.d("Franck","User change"+name);
+                updateMeetingChanges();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+        myRef.addValueEventListener(userm.findEventListener());
     }
 }

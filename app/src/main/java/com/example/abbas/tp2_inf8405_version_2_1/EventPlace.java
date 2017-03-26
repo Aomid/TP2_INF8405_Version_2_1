@@ -1,5 +1,6 @@
 package com.example.abbas.tp2_inf8405_version_2_1;
 
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
@@ -23,7 +24,7 @@ import java.util.logging.Logger;
  * Created by Abbas on 3/19/2017.
  */
 
-public class EventPlace implements MyMarker {
+public class EventPlace implements MyMarker, Comparable<EventPlace> {
     public View view;
     private Map<String, Long> Votes = new HashMap<>();
     private String id;
@@ -211,6 +212,11 @@ public class EventPlace implements MyMarker {
         }
         res /= Votes.values().size();
         return res;
+    }
+
+    @Override
+    public int compareTo(@NonNull EventPlace o) {
+        return (int) (average() - o.average())*100;
     }
 
 

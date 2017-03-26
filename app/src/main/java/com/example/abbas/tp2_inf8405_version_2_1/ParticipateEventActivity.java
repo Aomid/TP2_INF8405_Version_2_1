@@ -56,4 +56,10 @@ public class ParticipateEventActivity extends EventActivity {
         saveMeetingEvent();
     }
 
+    @Override
+    protected void showRating(){
+        super.showRating();
+        showAverage(current_place_event);
+    }
+
 }

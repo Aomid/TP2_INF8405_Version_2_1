@@ -9,7 +9,11 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import static com.example.abbas.tp2_inf8405_version_2_1.MeetingEvent.Code.PARTICIPATION;
 
@@ -98,7 +102,9 @@ public class ChoseEventActivity extends EventActivity {
         //LinearLayout layout = (LinearLayout) findViewById(R.id.group_radio_layout);
         RadioGroup radioGroup = (RadioGroup) findViewById(R.id.myRadioGroup);
         radioGroup.removeAllViews();
-        for (EventPlace ep : meetingEvent.getPlaces().values()) {
+        List<EventPlace> list = new ArrayList<>(meetingEvent.getPlaces().values());
+        Collections.sort(list);
+        for (EventPlace ep : list) {
             RadioButton radioButtonView = new RadioButton(this);
             radioButtonView.setOnClickListener(new View.OnClickListener() {
                 @Override

@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -23,89 +24,21 @@ import java.util.Observable;
 
 public class Meeting_Setup extends EventActivity
 {
-    //8888888888888888888888888
     private static final String TAG = "Meeting Setup";
-    //8888888888888888888888
-    //   private static final String TAG = "";
-    private static final float DEFAULT_ZOOM = 2;
-    private static String groupName;
     final int SELECT_PHOTO = 1;
-    MeetingEvent eventBeingModified = null;
-    Button createMeetingButton, settingsButton;
-    EditText meetingName;
-
-    ListView scheduledMeetingsList;
-    Location mLastLocation;
-    Location mLastKnownLocation;
-    Marker mCurrLocationMarker;
-    boolean mLocationPermissionGranted;
-
-    private double longitude;
-    private double latitude;
-    private GoogleApiClient googleApiClient;
-    //    GoogleMap map;
-
-    private String UserName;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         initialisation();
-        ImageView userpic = (ImageView) findViewById(R.id.imageView2);
-        TextView Username = (TextView) findViewById(R.id.Username);
-        //Bundle extras = getIntent().getExtras();
-       /* String value = "";
-        String picture = "";
-
-        if (extras != null) {
-            value = extras.getString("username");
-        }
-        Username.setText("Welcome " + value);
-        UserName=value;
-        picture = extras.getString("picture");
-        byte[] decodedByteArray = android.util.Base64.decode(picture, Base64.DEFAULT);
-        Bitmap bit = BitmapFactory.decodeByteArray(decodedByteArray, 0, decodedByteArray.length);
-        userpic.setRotation(-90);
-        userpic.setImageBitmap(bit);*/
-
+        Log.d("Franck", " Instance setup");
     }
-
-    public void update(Observable o, Object arg) {
-
-    }
-
-
-    // Returns a string containing the places types that at least one group member liked
- /*   private String GetPlacesPreferences(){
-        ArrayList<String> preferences = new ArrayList<>();
-        Group currentGroup = (Group) MainActivity.getInstance().getCurrentGroup();
-        List<UserProfile> groupMembers = currentGroup.getGroupMembers();
-        for (UserProfile u : groupMembers) {
-            for(String pref : u.getPreferences()){
-                String lowerCasePref = pref.toLowerCase();
-                if(!preferences.contains(lowerCasePref))
-                {
-                    preferences.add(lowerCasePref);
-                }
-            }
-        }
-        StringBuilder prefStr = new StringBuilder();
-        for(int i = 0; i < preferences.size(); ++i){
-            prefStr.append(preferences.get(i));
-            if(i<preferences.size()-1)
-                prefStr.append('|');
-        }
-        return prefStr.toString();
-    }
-*/
-
-
 
     @Override
     public void onMapLongClick(LatLng latLng) {
-        //map.addMarker(new MarkerOptions().position(latLng).draggable(true));
-        showDialogPlace(latLng);
+        if(meetingEvent.amITheOrganizer()) {
+            showDialogPlace(latLng);
+        }
     }
 
 
@@ -121,7 +54,6 @@ public class Meeting_Setup extends EventActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
         super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
-
         switch(requestCode) {
             case SELECT_PHOTO:
                 if(resultCode == RESULT_OK){
@@ -135,12 +67,9 @@ public class Meeting_Setup extends EventActivity
                     }
 
                 }
-
         }
     }
     private void showImageSelected(Uri uri) throws FileNotFoundException {
-        //setContentView(R.layout.addplacelayout);
-        //Layout test=(Layout)findViewById(R.layout.addplacelayout);
         ImageView img=addDialog.getImageView();
         final InputStream imageStream = getContentResolver().openInputStream(uri);
         final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);

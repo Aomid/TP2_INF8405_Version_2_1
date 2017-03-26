@@ -24,7 +24,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Group_Choice_Activity extends AppCompatActivity {
+public class Group_Choice_Activity extends LoggedActivity {
 
     private String groupName;
 
@@ -49,46 +49,28 @@ public class Group_Choice_Activity extends AppCompatActivity {
     }
 
     public void groupManager(View view) {
-        EditText group = (EditText) findViewById(R.id.meetingName);
+        final EditText group = (EditText) findViewById(R.id.meetingName);
         groupName = group.getText().toString();
 
         DatabaseReference myRef = FirebaseDatabase.getInstance().getReference().child("Groups");
         myRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                List<String> tempGroup = new ArrayList<String>();
-                String meetingId = null;
-                boolean groupExist = false;
-                MeetingEvent me = null;
-                int i = (int) dataSnapshot.getChildrenCount();
-
-                MeetingEvent post = dataSnapshot.getValue(MeetingEvent.class);
-                Log.d("Franck", "Nombre " + dataSnapshot.getChildrenCount());
-
-                for (DataSnapshot dsp : dataSnapshot.getChildren()) {
-                    meetingId = dsp.getKey();
-                    //tempGroup.add(String.valueOf(dsp.child("groupName").getValue()));
-                    if (String.valueOf(dsp.child("meetingName").getValue()).equalsIgnoreCase(groupName)) {
-                        groupExist = true;
-                        me = dsp.getValue(MeetingEvent.class);
-                        if(me.addMember(UserProfile.getInstance())) {
-                            DatabaseReference addGroup = FirebaseDatabase.getInstance().getReference().child("Groups");
-                            addGroup.child(meetingId).setValue(me);
-                            Toast.makeText(getApplicationContext(), "This group exists.", Toast.LENGTH_SHORT).show();
-                        }else{
-                            // Group full
-                            me = null;
-                        }
-                        break;
+                MeetingEvent me ;
+                if(dataSnapshot.hasChild(groupName)){
+                    me = dataSnapshot.child(groupName).getValue(MeetingEvent.class);
+                    if(me.addMember(UserProfile.getInstance())) {
+                        DatabaseReference addGroup = FirebaseDatabase.getInstance().getReference().child("Groups");
+                        addGroup.child(groupName).setValue(me);
+                        Toast.makeText(getApplicationContext(), "This group exists.", Toast.LENGTH_SHORT).show();
+                        JoinGroup(me);
+                    }else{
+                        // Group full
+                        me = null;
                     }
-                }
-                if (!groupExist) {
+                }else{
                     me= CreateMeeting(groupName);
-                    Toast.makeText(getApplicationContext(), "Create a new group"+meetingId , Toast.LENGTH_SHORT).show();
-
-                }
-                if(me != null) {
-                   JoinGroup(me);
+                    Toast.makeText(getApplicationContext(), "Create a new group "+ groupName , Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -101,11 +83,9 @@ public class Group_Choice_Activity extends AppCompatActivity {
 
     public MeetingEvent CreateMeeting(String name){
         MeetingEvent meetingEvent = new MeetingEvent(name);
+        meetingEvent.setID(name);
         meetingEvent.addMember(UserProfile.getInstance());
-        DatabaseReference addGroup=FirebaseDatabase.getInstance().getReference().child("Groups");
-        String ID=addGroup.push().getKey();
-        meetingEvent.setID(ID);
-        addGroup.child(ID).setValue(meetingEvent);
+        FirebaseDatabase.getInstance().getReference().child("Groups").child(name).setValue(meetingEvent);
         return meetingEvent;
     }
 

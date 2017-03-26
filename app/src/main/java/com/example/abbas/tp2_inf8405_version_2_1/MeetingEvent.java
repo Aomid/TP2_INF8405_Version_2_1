@@ -5,6 +5,8 @@ import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.IgnoreExtraProperties;
 
@@ -324,6 +326,36 @@ class MeetingEvent extends Observable implements MyMeetingMarkers{
         this.endDateLong = endDateLong;
     }
 
+
+    public void concat(MeetingEvent savedMeeting){
+        //The members in the Database are the most accurate only if they don't impact me
+        if(members.containsKey(UserProfile.getInstance().emailString)) {
+            savedMeeting.addMember(UserProfile.getInstance());
+        }
+        else {
+            savedMeeting.removeMember(UserProfile.getInstance());
+        }
+            members = savedMeeting.getMembers();
+        //The places must be from the organizer
+        // Be careful of votes
+        if(!amITheOrganizer()){
+            for( String ep_key : savedMeeting.getPlaces().keySet()){
+                EventPlace myep = null;
+                if( (myep = places.get(ep_key)) != null) {
+                    if (myep.getVotes().get(UserProfile.getInstance().emailString) != null) {
+                        savedMeeting.getPlaces().get(ep_key).getVotes().put(UserProfile.getInstance().emailString, myep.getVotes().get(UserProfile.getInstance().emailString));
+                    }
+                }
+            }
+            places = savedMeeting.getPlaces();
+
+        }
+    }
+
+    public void removeMember(User user){
+        members.remove(user.emailString);
+    }
+
     public User getOrganizer() {
         return organizer;
     }
@@ -345,6 +377,37 @@ class MeetingEvent extends Observable implements MyMeetingMarkers{
         return null;
     }
 
+    public MarkerOptions provideMarkerFinalPlace() {
+        return new MarkerOptions()
+                .position(new LatLng(FinalPlace.getLatitude(),FinalPlace.getLongitude()))
+                //  .draggable(true)
+                .title(FinalPlace.getName())
+                .snippet(description)
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW))
+                //.icon(BitmapDescriptorFactory.fromBitmap(ImageConverter.decodeIntoBitmap(icon)))
+            ;
+    }
+
+    public MarkerOptions provideMarkerOrganizer() {
+        if(organizer.getLongitude() == null || organizer.getLatitude() == null)
+            return new MarkerOptions().position(new LatLng(0,0)).visible(false);
+        return new MarkerOptions()
+                .position(new LatLng(organizer.getLatitude(),organizer.getLongitude()))
+                //  .draggable(true)
+                .title(organizer.emailString)
+                .snippet(description)
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE))
+                //.icon(BitmapDescriptorFactory.fromBitmap(ImageConverter.decodeIntoBitmap(icon)))
+                ;
+    }
+
+    public void changeUser(User user) {
+        members.put(user.emailString,user);
+        if(user.equals(organizer)){
+            organizer = user;
+        }
+    }
+
 
     class Code {
         public static final String NOT_CREATED = "0L";
@@ -354,8 +417,6 @@ class MeetingEvent extends Observable implements MyMeetingMarkers{
         public static final String PARTICIPATION = "4L";
         public static final String END = "5L";
     }
-
-
 }
 
 

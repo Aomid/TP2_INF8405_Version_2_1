@@ -1,5 +1,6 @@
 package com.example.abbas.tp2_inf8405_version_2_1;
 
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 /**
@@ -8,4 +9,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 public interface MyMarker {
     MarkerOptions provideMarkerOptions();
+    Marker retrieveMarker();
+    void setMarker(Marker marker);
 }

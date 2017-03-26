@@ -1,6 +1,7 @@
 package com.example.abbas.tp2_inf8405_version_2_1;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
@@ -20,12 +21,14 @@ public class Vote_Activity extends EventActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d("Franck", " Instance Vote");
         initialisation();
     }
 
     @Override
     protected void initViews() {
         super.initViews();
+        placeRating.setIsIndicator(false);
         placeRating.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
             @Override
             public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
@@ -54,11 +57,10 @@ public class Vote_Activity extends EventActivity {
         }
     }
 
-    private void showAverage(EventPlace ep) {
-        placeRating.setRating(ep.average());
-    }
+
 
     private void showMyVote(EventPlace ep) {
+        placeRating.setStepSize(1.0f);
         placeRating.setRating(ep.findMyVote());
     }
 
@@ -93,6 +95,18 @@ public class Vote_Activity extends EventActivity {
         dialog.show();
     }
 
+    @Override
+    protected void chosefinalPlace() {
+        if(meetingEvent.amITheOrganizer()) {
+            Intent intent =  new Intent(getApplicationContext(), ChoseEventActivity.class);
+            intent.putExtra("Meeting_ID", meetingEvent.getID());
+            startActivity(intent);
+            finish();
+        }else{
+            passVoteActivity();
+        }
+    }
+
 
     @Override
     protected void nextAction(){
@@ -115,5 +129,11 @@ public class Vote_Activity extends EventActivity {
     }
 
     @Override
-    protected void passVoteActivity(){}
+    protected void passVoteActivity(){
+        if(meetingEvent.rated()){
+            voted = true;
+            Log.d("Franck", "Set Indicator True");
+            placeRating.setIsIndicator(true);
+        }
+    }
 }
