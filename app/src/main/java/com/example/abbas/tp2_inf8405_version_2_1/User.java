@@ -18,6 +18,13 @@ public class User implements  MyMarker{
     public String profileImage;
     @Exclude
     public Marker marker;
+
+    public void setMarkerType(MarkerType markerType) {
+        this.markerType = markerType;
+    }
+
+    @Exclude
+    MarkerType markerType = MarkerType.USER;
     @Exclude
     public ValueEventListener valueListener;
 
@@ -126,6 +133,11 @@ public class User implements  MyMarker{
         }
         this.marker=marker;
         marker.setTag(this);
+    }
+
+    @Override
+    public MarkerType getMarkerType() {
+        return markerType;
     }
 
     public void setValueListener(ValueEventListener valueListener) {

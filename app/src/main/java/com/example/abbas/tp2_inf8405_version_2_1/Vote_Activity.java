@@ -107,6 +107,12 @@ public class Vote_Activity extends EventActivity {
 
 
     @Override
+    protected void showPlace(Marker marker){
+        super.showPlace(marker);
+        showRating();
+    }
+
+    @Override
     protected void nextAction(){
         if(voted || meetingEvent.rated()) {
             if(!placeRating.isIndicator()) {

@@ -9,6 +9,8 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.model.Marker;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -55,6 +57,12 @@ public class ChoseEventActivity extends EventActivity {
         DialogFragment newFragment = new MyDateTimePicker.DatePickerFragment();
         MyDateTimePicker.setStart(false);
         newFragment.show(getSupportFragmentManager(), "End of the Event (Date)");
+    }
+
+    @Override
+    protected void showPlace(Marker marker){
+        super.showPlace(marker);
+        showRating();
     }
 
     public void setEndDate(int yy, int mm, int dd) {

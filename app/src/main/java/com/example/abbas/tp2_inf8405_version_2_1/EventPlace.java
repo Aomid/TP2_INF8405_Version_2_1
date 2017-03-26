@@ -36,6 +36,8 @@ public class EventPlace implements MyMarker, Comparable<EventPlace> {
     private Double latitude;
     private Double longitude;
     @Exclude
+    MarkerType markerType = MarkerType.PLACE;
+    @Exclude
     private Marker marker = null;
     @Exclude
     private LinearLayout placeView = null;
@@ -183,6 +185,17 @@ public class EventPlace implements MyMarker, Comparable<EventPlace> {
         this.marker = marker;
         marker.setTag(this);
     }
+
+    public void setMarkerType(MarkerType markerType) {
+        this.markerType = markerType;
+    }
+
+    @Override
+    public MarkerType getMarkerType() {
+        return markerType;
+    }
+
+
 
     public String getDescription() {
         return description;

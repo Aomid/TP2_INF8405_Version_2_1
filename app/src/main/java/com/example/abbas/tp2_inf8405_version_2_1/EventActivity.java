@@ -73,7 +73,6 @@ public class EventActivity extends LoggedActivity
         current_place_event = (EventPlace) marker.getTag();
         placeName.setText(current_place_event.getName());
         placeDescription.setText(current_place_event.getDescription());
-        showRating();
     }
 
     protected void showRating() {
@@ -312,12 +311,27 @@ public class EventActivity extends LoggedActivity
 
 
     /** Listeners for the map */
-
     @Override
     public boolean onMarkerClick(Marker marker) {
         //Toast.makeText(EventActivity.this, "onMarkerClick", Toast.LENGTH_SHORT).show();
         //TODO if marker for Place show place in place meeting else User
+        switch (((MyMarker)marker.getTag()).getMarkerType()){
+            case USER: {
+                showUser(marker);
+                break;
+            }
+            case PLACE: {
+                showPlace(marker);
+                break;
+            }
+        }
         return false;
+    }
+
+    protected void showUser(Marker marker) {
+        User user = (User) marker.getTag();
+        placeName.setText(user.getEmailString());
+        placeDescription.setText("");
     }
 
     @Override
@@ -353,7 +367,6 @@ public class EventActivity extends LoggedActivity
     public boolean onOptionsItemSelected(MenuItem item) {
 
         switch (item.getItemId()) {
-
             case R.id.action_ok:
                 nextAction();
                 return true;
