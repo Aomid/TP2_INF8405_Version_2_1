@@ -1,5 +1,6 @@
 package com.example.abbas.tp2_inf8405_version_2_1;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -11,9 +12,11 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.RadioButton;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -49,6 +52,8 @@ public class EventActivity extends LoggedActivity
     public EventPlace current_place_event = null;
 
     private GoogleMap map;
+    private int intervalSelected=1;
+    private int interval=1000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -298,12 +303,17 @@ public class EventActivity extends LoggedActivity
 
 
 
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(interval);
+        mLocationRequest.setFastestInterval(interval);
+        LocationServices.FusedLocationApi.requestLocationUpdates(
+                mGoogleApiClient, mLocationRequest, this);
 
 
     protected void createLocationRequest() {
         LocationRequest mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(10000);
-        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setInterval(interval);
+        mLocationRequest.setFastestInterval(interval);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
@@ -475,10 +485,14 @@ public class EventActivity extends LoggedActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
         switch (item.getItemId()) {
-            case R.id.action_settings:
-                // User chose the "Settings" item, show the app settings UI...
+            case R.id.action_settings: {
+                setContentView(R.layout.activity_set_interval);
+
+                Toast.makeText(getApplicationContext(), "test", Toast.LENGTH_LONG).show();
                 return true;
+            }
 
             case R.id.action_ok:
                 nextAction();
@@ -497,7 +511,28 @@ public class EventActivity extends LoggedActivity
     }
 
     protected void quit_group() {
+        DatabaseReference delete=FirebaseDatabase.getInstance().getReference().child("Groups");
+        delete.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for(DataSnapshot dsp : dataSnapshot.getChildren())
+                {
+                    dsp.getKey();
+                    if(dsp.child("meetingName").getValue().toString().equalsIgnoreCase(meetingEvent.getMeetingName()))
+                    {
+                        dsp.child("members").child(UserProfile.getInstance().emailString).getRef().removeValue();
+                        Toast.makeText(getApplicationContext(),"You leave this group",Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
+
 
     protected void nextAction() {
     }
@@ -518,6 +553,60 @@ public class EventActivity extends LoggedActivity
         intent.putExtra(MediaStore.EXTRA_OUTPUT,true);
         startActivity(intent);
         // startActivityForResult(intent, 1);
+    }
+
+
+
+        public void onRadioButtonClicked(View view) {
+            // Is the button now checked?
+            boolean checked = ((RadioButton) view).isChecked();
+
+            // Check which radio button was clicked
+            switch(view.getId()) {
+                case R.id.one:
+                    if (checked)
+                        intervalSelected=1;
+                        break;
+                case R.id.five:
+                    if (checked)
+                        intervalSelected=2;
+                        break;
+                case R.id.ten:
+                    if(checked)
+                       intervalSelected=3;
+                        break;
+                case R.id.thirty:
+                    if(checked)
+                        intervalSelected=4;
+                        break;
+            }
+        }
+
+    public void saveClick(View view) {
+        switch (intervalSelected){
+            case 1:
+                interval=60000;
+                Toast.makeText(getApplicationContext(),"Location update interval is One minute",
+                        Toast.LENGTH_SHORT).show();
+                break;
+            case 2:
+                interval=300000;
+                Toast.makeText(getApplicationContext(),"Location update interval is Five minute",
+                        Toast.LENGTH_SHORT).show();
+                break;
+            case 3:
+                interval=600000;
+                Toast.makeText(getApplicationContext(),"Location update interval is Ten minute",
+                        Toast.LENGTH_SHORT).show();
+                break;
+            case 4:
+                    interval=1800000;
+                Toast.makeText(getApplicationContext(),"Location update interval is Thirty minute",
+                        Toast.LENGTH_SHORT).show();
+                break;
+
+        }
+
     }
 
     public void getUserLastLocation(User userm){
