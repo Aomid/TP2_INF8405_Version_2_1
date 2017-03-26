@@ -55,10 +55,10 @@ public class Group_Choice_Activity extends LoggedActivity {
                         JoinGroup(me);
                     }else{
                         // Group full
-                        me = null;
+                        Toast.makeText(getApplicationContext(), " Group completed "+ groupName , Toast.LENGTH_SHORT).show();
                     }
                 }else{
-                    me= CreateMeeting(groupName);
+                    JoinGroup(CreateMeeting(groupName));
                     Toast.makeText(getApplicationContext(), "Create a new group "+ groupName , Toast.LENGTH_SHORT).show();
                 }
             }
@@ -72,7 +72,6 @@ public class Group_Choice_Activity extends LoggedActivity {
 
     public MeetingEvent CreateMeeting(String name){
         MeetingEvent meetingEvent = new MeetingEvent(name);
-        meetingEvent.setID(name);
         meetingEvent.addMember(UserProfile.getInstance());
         FirebaseDatabase.getInstance().getReference().child("Groups").child(name).setValue(meetingEvent);
         return meetingEvent;
@@ -106,7 +105,7 @@ public class Group_Choice_Activity extends LoggedActivity {
                     break;
             }
             if (intent != null) {
-                intent.putExtra("Meeting_ID", me.getID());
+                intent.putExtra("Meeting_Name", me.getMeetingName());
                 startActivity(intent);
                 finish();
             }

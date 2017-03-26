@@ -3,13 +3,10 @@ package com.example.abbas.tp2_inf8405_version_2_1;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
-import android.app.usage.UsageEvents;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 
@@ -56,6 +53,11 @@ public class AddPlaceDialog extends DialogFragment {
                 buildEventPlace();
             }
         });
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
     }
 
     public boolean buildEventPlace(){

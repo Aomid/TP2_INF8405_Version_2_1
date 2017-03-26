@@ -97,7 +97,7 @@ public class Vote_Activity extends EventActivity {
     protected void chosefinalPlace() {
         if(meetingEvent.amITheOrganizer()) {
             Intent intent =  new Intent(getApplicationContext(), ChoseEventActivity.class);
-            intent.putExtra("Meeting_ID", meetingEvent.getID());
+            intent.putExtra("Meeting_Name", meetingEvent.getMeetingName());
             startActivity(intent);
             finish();
         }else{

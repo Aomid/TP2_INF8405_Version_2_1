@@ -125,14 +125,15 @@ public class EventActivity extends LoggedActivity
     public void retrieveMeetingEvent() {
         Log.d("Franck", "Add Retrieve Event Request");
         Bundle extras = getIntent().getExtras();
-        final String event_Id = extras.getString("Meeting_ID");
-        DatabaseReference myRef = FirebaseDatabase.getInstance().getReference().child("Groups").child(event_Id);
+        final String Meeting_Name = extras.getString("Meeting_Name");
+        DatabaseReference myRef = FirebaseDatabase.getInstance().getReference().child("Groups").child(Meeting_Name);
         myRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 removeUserListeners();
                 meetingEvent = dataSnapshot.getValue(MeetingEvent.class);
-                meetingEvent.setID(event_Id);
+                meetingEvent.setMeetingName(Meeting_Name);
+                meetingEvent.linkParams();
                 Log.d("Franck", "Retrieve");
                 Log.d("Franck", meetingEvent.detailsIntoString());
                 changeActivity();
@@ -240,7 +241,7 @@ public class EventActivity extends LoggedActivity
             intent = new Intent(getApplicationContext(), ChoseEventActivity.class);
         else
             intent = new Intent(getApplicationContext(), Vote_Activity.class);
-        intent.putExtra("Meeting_ID", meetingEvent.getID());
+        intent.putExtra("Meeting_Name", meetingEvent.getMeetingName());
         startActivity(intent);
         finish();
     }
@@ -248,14 +249,14 @@ public class EventActivity extends LoggedActivity
 
     protected void rated() {
         Intent intent = new Intent(getApplicationContext(), Vote_Activity.class);
-        intent.putExtra("Meeting_ID", meetingEvent.getID());
+        intent.putExtra("Meeting_Name", meetingEvent.getMeetingName());
         startActivity(intent);
         finish();
     }
 
     protected void passVoteActivity() {
         Intent intent = new Intent(getApplicationContext(), Vote_Activity.class);
-        intent.putExtra("Meeting_ID", meetingEvent.getID());
+        intent.putExtra("Meeting_Name", meetingEvent.getMeetingName());
         startActivity(intent);
         finish();
     }
@@ -264,7 +265,7 @@ public class EventActivity extends LoggedActivity
         Log.d("Franck", "Save");
         Log.d("Franck", meetingEvent.detailsIntoString());
         DatabaseReference addGroup = FirebaseDatabase.getInstance().getReference().child("Groups");
-        addGroup.child(meetingEvent.getID()).setValue(meetingEvent);
+        addGroup.child(meetingEvent.getMeetingName()).setValue(meetingEvent);
     }
 
 
@@ -404,7 +405,7 @@ public class EventActivity extends LoggedActivity
     protected void passParticipate() {
         Log.d("Franck", "Must participate");
         Intent intent = new Intent(getApplicationContext(), ParticipateEventActivity.class);
-        intent.putExtra("Meeting_ID", meetingEvent.getID());
+        intent.putExtra("Meeting_Name", meetingEvent.getMeetingName());
         startActivity(intent);
         finish();
     }

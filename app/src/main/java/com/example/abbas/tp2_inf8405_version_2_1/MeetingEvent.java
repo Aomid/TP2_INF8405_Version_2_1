@@ -21,7 +21,6 @@ import java.util.Observable;
 
 
 class MeetingEvent extends Observable implements MyMeetingMarkers{
-    private String ID;
     private String meetingName;
     private String description;
     private String encodedPhoto;
@@ -170,7 +169,7 @@ class MeetingEvent extends Observable implements MyMeetingMarkers{
 
     public boolean addPlace(EventPlace instance) {
         if (!places.containsValue(instance)) {
-            places.put("Place " + (places.size() + 1), instance);
+            places.put(instance.getName(), instance);
             setChanged();
             return true;
         }return false;
@@ -194,17 +193,9 @@ class MeetingEvent extends Observable implements MyMeetingMarkers{
         return true;
     }
 
-    public String getID() {
-        return ID;
-    }
-
-    public void setID(String ID) {
-        this.ID = ID;
-    }
-
     public String detailsIntoString() {
         String retString = "";
-        retString = "Id : " + ID + "\n" +
+        retString =
                 "Name : " + meetingName + "\n" +
                 "Status : " + status + "\n" +
                 "Place Elected : " + (FinalPlace == null ? "null" : FinalPlace.getName()) + "\n" +
@@ -413,6 +404,14 @@ class MeetingEvent extends Observable implements MyMeetingMarkers{
 
     public void FocusEvent(MyMarker marker){
 
+    }
+
+    public void linkParams() {
+        if(organizer != null)
+            organizer = members.get(organizer.emailString);
+        /*if(FinalPlace != null){
+            FinalPlace = places.;
+        }*/
     }
 
     class Code {
