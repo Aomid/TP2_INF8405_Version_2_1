@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,9 +15,12 @@ import android.widget.ImageView;
  * Created by Franck on 23/03/2017.
  */
 
+
+/* Fragment pour la fenêtre de dialogue qui permet de mettre un nouveau lieu */
 public class AddPlaceDialog extends DialogFragment {
-    private static String placeName;
-    private EventPlace place;
+
+    //Le lieu qui sera rajout
+    public static  EventPlace place;
     private View layout=null;
     private  ImageView placeImage;
     @Override
@@ -58,30 +62,29 @@ public class AddPlaceDialog extends DialogFragment {
     @Override
     public void onResume(){
         super.onResume();
+        if(place.getIcon() != null)
+            ((ImageView) getDialog().findViewById(R.id.place_image)).setImageBitmap(ImageConverter.decodeIntoBitmap(place.getIcon()));
     }
 
     public boolean buildEventPlace(){
         boolean result ;
-        place.setName(((EditText) layout.findViewById(R.id.placename)).getText().toString());
-        place.setDescription(((EditText) layout.findViewById(R.id.description)).getText().toString());
-        place.setIcon(ImageConverter.encode((ImageView) layout.findViewById(R.id.place_image)));
-        placeName=place.getName();
+        place.setName(((EditText) getDialog().findViewById(R.id.placename)).getText().toString());
+        place.setDescription(((EditText) getDialog().findViewById(R.id.description)).getText().toString());
+        place.setIcon(ImageConverter.encode((ImageView) getDialog().findViewById(R.id.place_image)));
         if( (result = ((Meeting_Setup)getActivity()).addPlace(place)))
             dismiss();
         return result;
     }
 
-    static public String getEventName()
-    {
-        return placeName;
-    }
     public void setPlace(EventPlace place) {
         this.place = place;
     }
 
 
-    public ImageView getImageView() {
-        return placeImage;
+    public void setImageView(Bitmap bitmap) {
+        place.setIcon(ImageConverter.encodeBitmap(bitmap));
+       // ((ImageView) getDialog().findViewById(R.id.place_image)).setImageBitmap(bitmap);
+        //((ImageView) getDialog().findViewById(R.id.place_image)).setVisibility(View.VISIBLE);
     }
 
 }

@@ -32,7 +32,6 @@ public class EventActivity extends LoggedActivity
         GoogleMap.OnMarkerDragListener,
         GoogleMap.OnMarkerClickListener{
     protected MeetingEvent meetingEvent = null;
-    protected AddPlaceDialog addDialog = null;
     public TextView placeName= null;
     public TextView placeDescription= null;
     public RatingBar placeRating= null;

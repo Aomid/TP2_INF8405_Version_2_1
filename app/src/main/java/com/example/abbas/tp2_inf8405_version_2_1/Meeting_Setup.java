@@ -1,7 +1,5 @@
 package com.example.abbas.tp2_inf8405_version_2_1;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -9,7 +7,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -20,6 +17,7 @@ import java.io.InputStream;
 public class Meeting_Setup extends EventActivity
 {
     private static final String TAG = "Meeting Setup";
+    private static AddPlaceDialog addDialog  = null;
     final int SELECT_PHOTO = 1;
 
     @Override
@@ -47,12 +45,15 @@ public class Meeting_Setup extends EventActivity
     }
 
     public void showDialogPlace(LatLng latlng) {
-        addDialog = new AddPlaceDialog();
+        Meeting_Setup.addDialog = new AddPlaceDialog();
+       /* if(Meeting_Setup.addDialog == null){
+            Meeting_Setup.addDialog = new AddPlaceDialog();
+        }*/
         EventPlace ep = new EventPlace(latlng.latitude, latlng.longitude);
-        addDialog.setPlace(ep);
+        Meeting_Setup.addDialog.setPlace(ep);
         Log.d("Franck", "Launch Fragment Add Place");
         Log.d("Franck", meetingEvent.detailsIntoString());
-        addDialog.show(getFragmentManager(),"Place");
+        Meeting_Setup.addDialog.show(getFragmentManager(),"Place");
     }
 
     public boolean addPlace(EventPlace place) {
@@ -92,12 +93,9 @@ public class Meeting_Setup extends EventActivity
         }
     }
     private void showImageSelected(Uri uri) throws FileNotFoundException {
-        ImageView img=addDialog.getImageView();
         final InputStream imageStream = getContentResolver().openInputStream(uri);
         final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
-        img.setImageBitmap(selectedImage);
-        img.setVisibility(View.VISIBLE);
-
+        addDialog.setImageView(selectedImage);
     }
 
     @Override

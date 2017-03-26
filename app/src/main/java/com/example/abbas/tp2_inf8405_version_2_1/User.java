@@ -12,6 +12,7 @@ import com.google.firebase.database.ValueEventListener;
  */
 
 public class User implements  MyMarker{
+    // Identifiant de l'utilisateur
     public String emailString;
     public String passString;
     public String profileImage;

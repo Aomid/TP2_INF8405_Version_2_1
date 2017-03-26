@@ -107,7 +107,7 @@ public class Group_Choice_Activity extends LoggedActivity {
             if (intent != null) {
                 intent.putExtra("Meeting_Name", me.getMeetingName());
                 startActivity(intent);
-                finish();
+                //finish();
             }
         }
     }
