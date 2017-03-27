@@ -30,33 +30,40 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.Collection;
 
+/**
+ *
+ * Classe de base pour chaque modification d'un groupe
+ * */
 public class EventActivity extends LoggedActivity
         implements OnMapReadyCallback,
         GoogleMap.OnMapLongClickListener,
         GoogleMap.OnMarkerDragListener,
         GoogleMap.OnMarkerClickListener{
+    // Le groupe ou plutôt l'événement du grooupe
     protected MeetingEvent meetingEvent = null;
+
+    // Affichage principal en haut de l'activité (afficher détails sur le lieu ou le membre selectionné)
     public TextView placeName= null;
     public TextView placeDescription= null;
     public RatingBar placeRating= null;
+
     public EventPlace current_place_event = null;
     protected GoogleMap map;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
     public void initialisation(){
         setContentView();
         initViews();
         initAppbar();
-        initLocalisation();
         initMap();
         initDatabase();
     }
 
+    //Initialiser l'Affichage principal
     protected void initViews() {
         if(placeName== null)
             placeName = (TextView) findViewById(R.id.place_selected_name);
@@ -67,6 +74,7 @@ public class EventActivity extends LoggedActivity
         }
     }
 
+    //Afficher le Marker (utilisateur ou lieu) dans l'affichage principal
     protected void showPlace(MyMarker marker) {
         if(marker == null){
             Log.d("Franck","Place null");
@@ -76,15 +84,19 @@ public class EventActivity extends LoggedActivity
         placeDescription.setText(current_place_event.getDescription());
     }
 
+    //Rendre visible les étoiles de votes
     protected void showRating() {
         placeRating.setVisibility(View.VISIBLE);
         placeRating.setMax(5);
     }
 
+
+    //Afficher le vote moyen d'un lieu dans l'affichage principal
     protected void showAverage(EventPlace ep) {
         placeRating.setStepSize(0.1f);
         placeRating.setRating(ep.average());
     }
+
 
 
     protected void setContentView() {
@@ -93,6 +105,7 @@ public class EventActivity extends LoggedActivity
 
 
     @Override
+    // Initialiser la barre d'application
     protected void initAppbar(){
         super.initAppbar();
         Bundle extras = getIntent().getExtras();
@@ -100,21 +113,13 @@ public class EventActivity extends LoggedActivity
         getSupportActionBar().setSubtitle(Meeting_Name);
     }
 
-    private void initLocalisation() {
-        /*GpsTracker gps = new GpsTracker(this);
-        if (gps.canGetLocation) {
-            UserProfile.getInstance().setLatitude(gps.getLatitude());
-            UserProfile.getInstance().setLongitude(gps.getLongitude());
-            //Toast.makeText(this, "Longitude = " + (String.valueOf(longitude) + " Latitude= " + (String.valueOf(latitude))), Toast.LENGTH_LONG).show();
-        }*/
-    }
 
-
-
+    // Initialiser le groupe en récuperant les données de celui-ci
     private void initDatabase() {
         retrieveMeetingEvent();
     }
 
+    // Initialiser la carte
     public void initMap(){
         Log.d("Franck", "Init Map");
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -123,6 +128,8 @@ public class EventActivity extends LoggedActivity
     }
 
 
+    // Récuperer depuis la base le groupe (événement)
+    // Attention la récupération est asynchrone
     public void retrieveMeetingEvent() {
         Log.d("Franck", "Add Retrieve Event Request");
         Bundle extras = getIntent().getExtras();
@@ -131,15 +138,19 @@ public class EventActivity extends LoggedActivity
         myRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                // Enlever les marqueurs présents sur la carte pour pouvoir les remettre et les lier avec les résultats de la base
                 removeMarkers();
+                // Enlever les listeners des utilisateurs et les lier avec les résultats de la base
                 removeUserListeners();
                 meetingEvent = dataSnapshot.getValue(MeetingEvent.class);
                 meetingEvent.setMeetingName(Meeting_Name);
                 meetingEvent.linkParams();
                 Log.d("Franck", "Retrieve");
                 Log.d("Franck", meetingEvent.detailsIntoString());
+                //Si le statut du groupe a changé, il faut certainement changer d'activité
                 changeActivity();
                 addUserListeners();
+                //Afficher les marqueurs et les listes
                 updateMeetingChanges();
 
             }
@@ -151,6 +162,7 @@ public class EventActivity extends LoggedActivity
         });
     }
 
+    // Enlever les marqueurs de la carte
     private void removeMarkers() {
         if (meetingEvent != null) {
             removeMarkers(meetingEvent.getPlaces().values());
@@ -187,6 +199,7 @@ public class EventActivity extends LoggedActivity
         }
     }
 
+    // Afficher les nouvelles informations
     protected void updateMeetingChanges() {
         Log.d("Franck", "Update Changes");
         if(map != null) {
@@ -234,6 +247,7 @@ public class EventActivity extends LoggedActivity
         }
     }
 
+    //Affichage d'un élément de la liste de lieux ou de membre
     protected void showInList(LinearLayout child, MyMarker ep) {
         //ImageConverter.decodeInto(ep.getIcon(), ((ImageView) child.findViewById(R.id.mini_icon)));
         Log.d("Franck",ep.getName() );
@@ -242,6 +256,8 @@ public class EventActivity extends LoggedActivity
         //ImageConverter.decodeInto(ep.getIcon(), ((ImageView) child.findViewById(R.id.mini_icon));
     }
 
+
+    //Affichage du marqueur sur carte et le centrer
     protected void showMarker(MyMarker marker) {
         if(marker.retrieveMarker()!= null){
             map.moveCamera(CameraUpdateFactory.newLatLng(marker.retrieveMarker().getPosition()));
@@ -259,6 +275,8 @@ public class EventActivity extends LoggedActivity
         }
     }
 
+
+    //Changer d'activiter en fonction du statut du groupe
     protected void changeActivity() {
         switch (meetingEvent.getStatus()) {
             case MeetingEvent.Code.NOT_CREATED:
@@ -278,28 +296,10 @@ public class EventActivity extends LoggedActivity
                 return;
         }
     }
-        /*protected void changeActivity() {
-            if (meetingEvent.getFinalPlace() != null) {
-                passParticipate();
-                return;
-            }
-            if (meetingEvent.allrated()) {
-                // Show the final Place
-                chosefinalPlace();
-                return;
-            }
-            if (meetingEvent.rated()) {
-                rated();
-                return;
-            }
-            if (meetingEvent.getPlaces().size() > 2) {
-                // Make Votes
 
-                return;
-            }
-        }
-    }*/
 
+
+    //Etat : Tout le monde a voté
     protected void chosefinalPlace() {
         Intent intent = null ;
         if(meetingEvent.amITheOrganizer())

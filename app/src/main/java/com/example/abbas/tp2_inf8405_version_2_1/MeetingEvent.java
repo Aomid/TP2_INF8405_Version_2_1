@@ -389,6 +389,7 @@ class MeetingEvent extends Observable {
                 ;
     }
 
+    //Met a jour les donnees sur l'utlisateur
     public void changeUser(User user) {
         members.put(user.emailString,user);
         if(user.equals(organizer)){
@@ -396,17 +397,11 @@ class MeetingEvent extends Observable {
         }
     }
 
-
-    public void FocusEvent(MyMarker marker){
-
-    }
-
     public void linkParams() {
         if(organizer != null)
             organizer = members.get(organizer.emailString);
-        /*if(FinalPlace != null){
-            FinalPlace = places.;
-        }*/
+        if(FinalPlace != null)
+            FinalPlace = places.get(FinalPlace.getName());
     }
 
     class Code {

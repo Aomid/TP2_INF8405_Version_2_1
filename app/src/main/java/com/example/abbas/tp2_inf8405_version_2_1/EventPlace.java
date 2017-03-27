@@ -13,17 +13,12 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.Exclude;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
- * Created by Abbas on 3/19/2017.
- */
+ *  Classe Evénement - groupe
+ * */
 
 public class EventPlace implements MyMarker, Comparable<EventPlace> {
     public View view;
@@ -32,7 +27,6 @@ public class EventPlace implements MyMarker, Comparable<EventPlace> {
     private String description;
     private String icon;
     private String name;
-    private String vicinity;// Address
     private Double latitude;
     private Double longitude;
     @Exclude
@@ -57,24 +51,7 @@ public class EventPlace implements MyMarker, Comparable<EventPlace> {
         this.longitude = marker.getPosition().longitude;
     }
 
-    // Create an EventPlace from a Json object
-    static EventPlace jsonToPlaceReference(JSONObject placeReference) {
-        try {
-            EventPlace result = new EventPlace();
-            JSONObject geometry = (JSONObject) placeReference.get("geometry");
-            JSONObject location = (JSONObject) geometry.get("location");
-            result.setLatitude((Double) location.get("lat"));
-            result.setLongitude((Double) location.get("lng"));
-            result.setIcon(placeReference.getString("icon"));
-            result.setName(placeReference.getString("name"));
-            result.setVicinity(placeReference.getString("vicinity"));
-            result.setId(placeReference.getString("id"));
-            return result;
-        } catch (JSONException ex) {
-            Logger.getLogger(EventPlace.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
-    }
+
 
     public Marker retrieveMarker() {
         return marker;
@@ -103,6 +80,8 @@ public class EventPlace implements MyMarker, Comparable<EventPlace> {
         }
         Votes.remove(username);
     }
+
+
 
     public Map<String, Long> getVotes() {
         return Votes;
@@ -150,14 +129,6 @@ public class EventPlace implements MyMarker, Comparable<EventPlace> {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getVicinity() {
-        return vicinity;
-    }
-
-    public void setVicinity(String vicinity) {
-        this.vicinity = vicinity;
     }
 
     // Creates a JSON string from an Event place object
@@ -254,9 +225,4 @@ public class EventPlace implements MyMarker, Comparable<EventPlace> {
         return (int) (average() - o.average())*100;
     }
 
-
-    /*public LinearLayout placeView(){
-        if(placeView==null)
-        return new LinearLayout();
-    }*/
 }

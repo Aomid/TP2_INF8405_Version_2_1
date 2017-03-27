@@ -34,6 +34,11 @@ public class LoggedActivity extends AppCompatActivity {
         }
         GpsTracker.setCurrentActivity(this);
         GpsTracker.getInstance();
+        initialisation();
+    }
+
+    protected void initialisation() {
+        initAppbar();
     }
 
 
@@ -135,7 +140,4 @@ public class LoggedActivity extends AppCompatActivity {
         builder.create().show();
     }
 
-    /*private static void saveUserInAllGroups() {
-        DatabaseReference addGroup = FirebaseDatabase.getInstance().getReference().child("Group");
-    }*/
 }

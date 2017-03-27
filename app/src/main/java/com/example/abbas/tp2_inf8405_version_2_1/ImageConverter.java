@@ -9,7 +9,7 @@ import android.widget.ImageView;
 import java.io.ByteArrayOutputStream;
 
 /**
- * Created by Franck on 23/03/2017.
+ *  Convertir des String en image et inversement
  */
 
 public class ImageConverter {

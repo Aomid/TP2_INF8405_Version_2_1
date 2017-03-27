@@ -22,18 +22,18 @@ public class ChoseEventActivity extends EventActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d("Franck", " Instance Chose Event");
-        initialisation();
-        //setDateTime();
     }
 
 
     @Override
     protected void initViews(){
         super.initViews();
+        //Mettre la vue avec les radio buttons visible
         findViewById(R.id.layout_chose).setVisibility(View.VISIBLE);
     }
 
 
+    //Mettre la valeur d'aujourd'hui dans les textViews s'il n'y a pas encore eu de choix sur les dates et heure
     private void setDateTime() {
         Calendar rightNow = meetingEvent.convertStartDate();
         if (rightNow == null) {
@@ -51,11 +51,7 @@ public class ChoseEventActivity extends EventActivity {
     }
 
 
-    public void showEndDatePickerDialog(View v) {
-        DialogFragment newFragment = new MyDateTimePicker.DatePickerFragment();
-        MyDateTimePicker.setStart(false);
-        newFragment.show(getSupportFragmentManager(), "End of the Event (Date)");
-    }
+
 
     @Override
     protected void showPlace(MyMarker marker){
@@ -63,9 +59,15 @@ public class ChoseEventActivity extends EventActivity {
         showRating();
     }
 
-    public void setEndDate(int yy, int mm, int dd) {
-        meetingEvent.setEndDate(yy, mm, dd);
-        ((TextView) findViewById(R.id.eventEndingDate)).setText(yy + "/" + (mm + 1) + "/" + dd);
+
+
+     /*********************************************************************
+     Afficher les dialog pour choisir les dates et heure de début et de fin
+      *********************************************************************/
+    public void showEndDatePickerDialog(View v) {
+        DialogFragment newFragment = new MyDateTimePicker.DatePickerFragment();
+        MyDateTimePicker.setStart(false);
+        newFragment.show(getSupportFragmentManager(), "End of the Event (Date)");
     }
 
     public void showStartDatePickerDialog(View v) {
@@ -74,20 +76,10 @@ public class ChoseEventActivity extends EventActivity {
         newFragment.show(getSupportFragmentManager(), "Beginning of the Event (Date)");
     }
 
-    public void setStartDate(int yy, int mm, int dd) {
-        meetingEvent.setStartDate(yy, mm, dd);
-        ((TextView) findViewById(R.id.eventStartingDate)).setText(yy + "/" + (mm + 1) + "/" + dd);
-    }
-
     public void showEndTimePickerDialog(View v) {
         DialogFragment newFragment = new MyDateTimePicker.TimePickerFragment();
         MyDateTimePicker.setStart(false);
         newFragment.show(getSupportFragmentManager(), "End of the Event (Time)");
-    }
-
-    public void setEndTime(int hh, int min) {
-        meetingEvent.setEndTime(hh, min);
-        ((TextView) findViewById(R.id.eventEndingTime)).setText(hh + "h" + min);
     }
 
     public void showStartTimePickerDialog(View v) {
@@ -97,14 +89,34 @@ public class ChoseEventActivity extends EventActivity {
     }
 
 
+    /*********************************************************************
+     Mettre les dates et heures choisies dans l'événement/Groupe et les afficher
+     *********************************************************************/
+
+    public void setStartDate(int yy, int mm, int dd) {
+        meetingEvent.setStartDate(yy, mm, dd);
+        ((TextView) findViewById(R.id.eventStartingDate)).setText(yy + "/" + (mm + 1) + "/" + dd);
+    }
+
+    public void setEndTime(int hh, int min) {
+        meetingEvent.setEndTime(hh, min);
+        ((TextView) findViewById(R.id.eventEndingTime)).setText(hh + "h" + min);
+    }
+
+
     public void setStartTime(int hh, int min) {
         meetingEvent.setStartime(hh, min);
         ((TextView) findViewById(R.id.eventStartingTime)).setText(hh + "h" + min);
     }
 
+    public void setEndDate(int yy, int mm, int dd) {
+        meetingEvent.setEndDate(yy, mm, dd);
+        ((TextView) findViewById(R.id.eventEndingDate)).setText(yy + "/" + (mm + 1) + "/" + dd);
+    }
+
+
+    //Mettre la liste des lieux dans un Radio Group pour pouvoir les selectionner
     public void setUpRadioGroup() {
-        //LayoutInflater inflater = getLayoutInflater();
-        //LinearLayout layout = (LinearLayout) findViewById(R.id.group_radio_layout);
         RadioGroup radioGroup = (RadioGroup) findViewById(R.id.myRadioGroup);
         radioGroup.removeAllViews();
         List<EventPlace> list = new ArrayList<>(meetingEvent.getPlaces().values());
@@ -114,15 +126,16 @@ public class ChoseEventActivity extends EventActivity {
             radioButtonView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    // Mettre le selectionner comme lieu Final
                     onRadioButtonClicked(v);
                 }
             });
             ep.setRadioButton(radioButtonView);
             radioGroup.addView(radioButtonView);
         }
-        //layout.addView(radioGroup);
     }
 
+    // Mettre le selectionner comme lieu Final
     public void onRadioButtonClicked(View view) {
         // Is the button now checked?
         boolean checked = ((RadioButton) view).isChecked();
@@ -132,6 +145,7 @@ public class ChoseEventActivity extends EventActivity {
     }
 
     @Override
+    // Lorsque l'on appuie sur Valider dans la barre d'application
     protected void nextAction() {
         Log.d("Franck", " Save db");
         //TODO Verifier qu'il y ait bien les dates
@@ -141,8 +155,18 @@ public class ChoseEventActivity extends EventActivity {
     }
 
     @Override
+    //Ne pas afficher la liste des lieux (déja présente dans le Radio Group)
+    protected void showAllPlaces(){
+    }
+
+    @Override
+    // Doit être redéfinit car sinon lance cette activité
+    // Est appelé après un retrieveEvent
     protected void chosefinalPlace() {
-        setUpRadioGroup();
-        setDateTime();
+        // Ne faire cette action qu'une fois à la première récupération de l'événement
+        if(meetingEvent == null) {
+            setUpRadioGroup();
+            setDateTime();
+        }
     }
 }

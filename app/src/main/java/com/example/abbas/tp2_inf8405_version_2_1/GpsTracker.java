@@ -306,8 +306,8 @@ public class GpsTracker extends Service implements LocationListener,
 
         mLastKnownLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
     }
-    //check for google service avalability
 
+    //check for google service avalability
     public boolean googleServiceAvailable() {
         GoogleApiAvailability api = GoogleApiAvailability.getInstance();
         int isAvailable = api.isGooglePlayServicesAvailable(this);
@@ -342,7 +342,7 @@ public class GpsTracker extends Service implements LocationListener,
 
     }
 
-
+/*
     public void periodicSendLocation() {
         // Define the code block to be executed
         runnableCode = new Runnable() {
@@ -358,7 +358,7 @@ public class GpsTracker extends Service implements LocationListener,
         // Start the initial runnable task by posting through the handler
         handler.post(runnableCode);
     }
-
+*/
     private void saveLocation(Location location) {
         if(currentActivity!=null)
             currentActivity.updateLocation(location);

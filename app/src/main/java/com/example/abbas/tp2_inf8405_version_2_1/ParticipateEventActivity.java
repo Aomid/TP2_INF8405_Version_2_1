@@ -12,7 +12,6 @@ public class ParticipateEventActivity extends EventActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d("Franck", " Instance participate");
-        initialisation();
     }
 
     @Override

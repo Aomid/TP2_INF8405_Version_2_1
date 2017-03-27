@@ -23,7 +23,6 @@ public class Meeting_Setup extends EventActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        initialisation();
         Log.d("Franck", " Instance setup");
     }
 

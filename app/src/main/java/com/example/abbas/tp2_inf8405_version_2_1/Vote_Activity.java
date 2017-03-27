@@ -18,7 +18,6 @@ public class Vote_Activity extends EventActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d("Franck", " Instance Vote");
-        initialisation();
     }
 
     @Override
