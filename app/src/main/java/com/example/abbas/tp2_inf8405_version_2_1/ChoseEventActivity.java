@@ -163,10 +163,7 @@ public class ChoseEventActivity extends EventActivity {
     // Doit être redéfinit car sinon lance cette activité
     // Est appelé après un retrieveEvent
     protected void chosefinalPlace() {
-        // Ne faire cette action qu'une fois à la première récupération de l'événement
-        if(meetingEvent == null) {
-            setUpRadioGroup();
-            setDateTime();
-        }
+        setUpRadioGroup();
+        setDateTime();
     }
 }

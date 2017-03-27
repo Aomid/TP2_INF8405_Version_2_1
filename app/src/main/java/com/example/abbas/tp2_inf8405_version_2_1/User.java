@@ -156,10 +156,11 @@ public class User implements MyMarker {
     @Override
     public void setMarker(Marker marker) {
         if(this.marker != null){
-            marker.remove();
+            this.marker.remove();
         }
         this.marker=marker;
-        marker.setTag(this);
+        if(marker != null)
+            marker.setTag(this);
     }
 
     @Override

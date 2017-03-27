@@ -41,7 +41,7 @@ public class EventActivity extends LoggedActivity
         GoogleMap.OnMarkerClickListener{
     // Le groupe ou plutôt l'événement du grooupe
     protected MeetingEvent meetingEvent = null;
-
+    protected ValueEventListener mvalueEventListener = null;
     // Affichage principal en haut de l'activité (afficher détails sur le lieu ou le membre selectionné)
     public TextView placeName= null;
     public TextView placeDescription= null;
@@ -116,7 +116,8 @@ public class EventActivity extends LoggedActivity
 
     // Initialiser le groupe en récuperant les données de celui-ci
     private void initDatabase() {
-        retrieveMeetingEvent();
+        MeetingEventListener();
+        //retrieveMeetingEvent();
     }
 
     // Initialiser la carte
@@ -143,6 +144,8 @@ public class EventActivity extends LoggedActivity
                 // Enlever les listeners des utilisateurs et les lier avec les résultats de la base
                 removeUserListeners();
                 meetingEvent = dataSnapshot.getValue(MeetingEvent.class);
+                if(meetingEvent == null)
+                    finish();
                 meetingEvent.setMeetingName(Meeting_Name);
                 meetingEvent.linkParams();
                 Log.d("Franck", "Retrieve");
@@ -294,6 +297,10 @@ public class EventActivity extends LoggedActivity
                 return;
             case MeetingEvent.Code.END:
                 return;
+            case MeetingEvent.Code.REMOVE:
+                deleteMeetingEvent();
+                finish();
+                return;
         }
     }
 
@@ -331,6 +338,13 @@ public class EventActivity extends LoggedActivity
         Log.d("Franck", meetingEvent.detailsIntoString());
         DatabaseReference addGroup = FirebaseDatabase.getInstance().getReference().child("Groups");
         addGroup.child(meetingEvent.getMeetingName()).setValue(meetingEvent);
+    }
+
+    public void deleteMeetingEvent() {
+        Log.d("Franck", "Delete");
+        Log.d("Franck", "Nom : " + meetingEvent.detailsIntoString());
+        DatabaseReference addGroup = FirebaseDatabase.getInstance().getReference().child("Groups");
+        addGroup.child( meetingEvent.getMeetingName()).setValue(null);
     }
 
 
@@ -446,30 +460,9 @@ public class EventActivity extends LoggedActivity
     }
 
     protected void quit_group() {
-        DatabaseReference delete=FirebaseDatabase.getInstance().getReference().child("Groups");
-        /*
         meetingEvent.removeMember(UserProfile.getInstance());
-        saveMeeting();
-        finish();*/
-        delete.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for(DataSnapshot dsp : dataSnapshot.getChildren())
-                {
-                    dsp.getKey();
-                    if(dsp.child("meetingName").getValue().toString().equalsIgnoreCase(meetingEvent.getMeetingName()))
-                    {
-                        dsp.child("members").child(UserProfile.getInstance().emailString).getRef().removeValue();
-                        Toast.makeText(getApplicationContext(),"You leave this group",Toast.LENGTH_LONG).show();
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
+        saveMeetingEvent();
+        finish();
     }
 
 
@@ -512,5 +505,63 @@ public class EventActivity extends LoggedActivity
             }
         });
         myRef.addValueEventListener(userm.findEventListener());
+    }
+
+
+    public void MeetingEventListener() {
+        Log.d("Franck", "Add Retrieve Event Request Mozaic");
+        Bundle extras = getIntent().getExtras();
+        final String Meeting_Name = extras.getString("Meeting_Name");
+        if(Meeting_Name == null){
+            return;
+        }
+        Log.d("Franck", "Bundle"+  Meeting_Name);
+        DatabaseReference myRef = FirebaseDatabase.getInstance().getReference().child("Groups").child(Meeting_Name);
+        mvalueEventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // Enlever les marqueurs présents sur la carte pour pouvoir les remettre et les lier avec les résultats de la base
+                removeMarkers();
+                // Enlever les listeners des utilisateurs et les lier avec les résultats de la base
+                removeUserListeners();
+                MeetingEvent me = dataSnapshot.getValue(MeetingEvent.class);
+                if(meetingEvent != null) {
+                   Log.d("Franck","Cas 1 ");
+                    if (me == null) {
+                        Log.d("Franck","Cas 2 ");
+                        finish();
+                    }
+                    else {
+                        Log.d("Franck","Cas 3 ");
+                        meetingEvent.concat(me);
+                    }
+                }else{
+                    Log.d("Franck","Cas 4 ");
+                    meetingEvent = me;
+                }
+                meetingEvent.linkParams();
+                Log.d("Franck", "Retrieve");
+                Log.d("Franck", meetingEvent.detailsIntoString());
+                //Si le statut du groupe a changé, il faut certainement changer d'activité
+                changeActivity();
+                addUserListeners();
+                //Afficher les marqueurs et les listes
+                updateMeetingChanges();
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+        myRef.addValueEventListener(mvalueEventListener);
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        DatabaseReference myParentRef = FirebaseDatabase.getInstance().getReference().child(meetingEvent.getMeetingName());
+        myParentRef.removeEventListener(mvalueEventListener);
     }
 }

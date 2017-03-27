@@ -4,8 +4,8 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -25,9 +25,8 @@ public class Group_Choice_Activity extends LoggedActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_group__choice_);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+
+
         ImageView userpic = (ImageView) findViewById(R.id.imageView2);
         TextView Username = (TextView) findViewById(R.id.Username);
         Username.setText("Welcome " + UserProfile.getInstance().emailString);
@@ -35,7 +34,10 @@ public class Group_Choice_Activity extends LoggedActivity {
         Bitmap bit = BitmapFactory.decodeByteArray(decodedByteArray, 0, decodedByteArray.length);
         userpic.setRotation(-90);
         userpic.setImageBitmap(bit);
-        initialisation();
+    }
+
+    protected void setContentView() {
+        setContentView(R.layout.activity_group__choice_);
     }
 
     // Quand on clique pour choisir son groupe
@@ -75,8 +77,20 @@ public class Group_Choice_Activity extends LoggedActivity {
     // Creer un nouveau groupe
     public MeetingEvent CreateMeeting(String name){
         MeetingEvent meetingEvent = new MeetingEvent(name);
+        if( meetingEvent.getMeetingName() != null)
+            Log.d("Franck", meetingEvent.getMeetingName());
+        else
+            Log.d("Franck", "Meeting Avent no nome");
         meetingEvent.addMember(UserProfile.getInstance());
+        if( meetingEvent.getMeetingName() != null)
+            Log.d("Franck", meetingEvent.getMeetingName());
+        else
+            Log.d("Franck", "Meeting Avent no nome");
         FirebaseDatabase.getInstance().getReference().child("Groups").child(name).setValue(meetingEvent);
+        if( meetingEvent.getMeetingName() != null)
+            Log.d("Franck", meetingEvent.getMeetingName());
+        else
+            Log.d("Franck", "Meeting Avent no nome");
         return meetingEvent;
     }
 
@@ -112,6 +126,10 @@ public class Group_Choice_Activity extends LoggedActivity {
             }
             if (intent != null) {
                 intent.putExtra("Meeting_Name", me.getMeetingName());
+                if( me.getMeetingName() != null)
+                    Log.d("Franck", me.getMeetingName());
+                else
+                    Log.d("Franck", "Meeting Avent no nome");
                 startActivity(intent);
                 //finish();
             }

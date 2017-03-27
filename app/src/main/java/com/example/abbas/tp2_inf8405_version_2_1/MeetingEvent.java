@@ -7,6 +7,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.Exclude;
+import com.google.firebase.database.IgnoreExtraProperties;
 
 import java.util.Calendar;
 import java.util.HashMap;
@@ -18,8 +19,9 @@ import java.util.Observable;
  */
 
 
-
+@IgnoreExtraProperties
 class MeetingEvent extends Observable {
+
     private String meetingName;
     private String description;
     private String encodedPhoto;
@@ -327,7 +329,7 @@ class MeetingEvent extends Observable {
         else {
             savedMeeting.removeMember(UserProfile.getInstance());
         }
-            members = savedMeeting.getMembers();
+        members = savedMeeting.getMembers();
         //The places must be from the organizer
         // Be careful of votes
         if(!amITheOrganizer()){
@@ -340,11 +342,29 @@ class MeetingEvent extends Observable {
                 }
             }
             places = savedMeeting.getPlaces();
-
+            FinalPlace = savedMeeting.FinalPlace ;
+            nbParticipantsMin = savedMeeting.nbParticipantsMin ;
+            nbParticipantsMax = savedMeeting.nbParticipantsMax ;
+            nbPlacesMin = savedMeeting.nbPlacesMin ;
+            nbPlacesMax= savedMeeting.nbPlacesMax ;
+            //status = savedMeeting.status ;
+            startDateLong = savedMeeting.startDateLong ;
+            endDateLong = savedMeeting.endDateLong;
+            description = savedMeeting.description;
+            encodedPhoto = savedMeeting.encodedPhoto;
+        }
+        meetingName =savedMeeting.meetingName;
+        Log.d("Franck", "L'autre "+ savedMeeting.meetingName);
+        Log.d("Franck", "Le mien "+ meetingName);
+        if(status.compareTo(savedMeeting.status) < 0){
+            status = savedMeeting.status;
         }
     }
 
     public void removeMember(User user){
+        if(user.equals(organizer)){
+            status= Code.REMOVE;
+        }
         members.remove(user.emailString);
     }
 
@@ -411,6 +431,7 @@ class MeetingEvent extends Observable {
         public static final String ELECTING_PLACE = "3L";
         public static final String PARTICIPATION = "4L";
         public static final String END = "5L";
+        public static final String REMOVE = "6L";
     }
 }
 

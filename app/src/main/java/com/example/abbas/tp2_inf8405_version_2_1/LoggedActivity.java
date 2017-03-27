@@ -38,17 +38,19 @@ public class LoggedActivity extends AppCompatActivity {
     }
 
     protected void initialisation() {
+        setContentView();
         initAppbar();
     }
 
+    protected void setContentView() {
+
+    }
 
     protected void initAppbar(){
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         // Enable the Up button
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        Log.d("Franck", "Add Retrieve Event Request");
     }
 
     public void updateLocation(Location location) {
