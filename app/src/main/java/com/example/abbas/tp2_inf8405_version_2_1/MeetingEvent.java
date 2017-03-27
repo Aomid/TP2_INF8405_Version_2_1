@@ -9,6 +9,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -230,6 +231,9 @@ class MeetingEvent extends Observable {
     }
 
     public Calendar convertStartDate() {
+        if(startDate == null){
+            startDate = Calendar.getInstance();
+        }
         if (startDate != null && startDateLong != null) {
             startDate.setTimeInMillis(startDateLong);
         }
@@ -242,6 +246,9 @@ class MeetingEvent extends Observable {
     }
 
     public Calendar convertEndDate() {
+        if(endDate == null){
+            endDate = Calendar.getInstance();
+        }
         if (endDate != null && endDateLong != null) {
             endDate.setTimeInMillis(endDateLong);
         }
@@ -254,11 +261,13 @@ class MeetingEvent extends Observable {
     }
 
     private void updateStart() {
-        startDateLong = startDate.getTimeInMillis();
+        if(startDate != null)
+            startDateLong = startDate.getTimeInMillis();
     }
 
     private void updateEnd() {
-        endDateLong = endDate.getTimeInMillis();
+        if(endDate != null)
+            endDateLong = endDate.getTimeInMillis();
     }
 
     public void setStartime(int hh, int min) {
@@ -269,8 +278,9 @@ class MeetingEvent extends Observable {
     }
 
     public void setEndTime(int hh, int min) {
-        if (endDate == null)
+        if (endDate == null){
             endDate = (Calendar) Calendar.getInstance().clone();
+        }
         endDate.set(Calendar.HOUR_OF_DAY, hh);
         endDate.set(Calendar.MINUTE, min);
     }
@@ -305,6 +315,8 @@ class MeetingEvent extends Observable {
     }
 
     public Long getStartDateLong() {
+        if(startDateLong == null)
+            updateStart();
         return startDateLong;
     }
 
@@ -313,6 +325,8 @@ class MeetingEvent extends Observable {
     }
 
     public Long getEndDateLong() {
+        if(endDateLong == null)
+            updateEnd();
         return endDateLong;
     }
 
@@ -422,6 +436,18 @@ class MeetingEvent extends Observable {
             organizer = members.get(organizer.emailString);
         if(FinalPlace != null)
             FinalPlace = places.get(FinalPlace.getName());
+    }
+
+    public String getStart(){
+        if(startDate == null)
+            return null;
+        return new SimpleDateFormat("yyyy/MM/dd @ HH:mm:ss").format(startDate.getTime());
+    }
+
+    public String getEnd(){
+        if(endDate == null)
+            return null;
+        return new SimpleDateFormat("yyyy/MM/dd @ HH:mm:ss").format(endDate.getTime());
     }
 
     class Code {
