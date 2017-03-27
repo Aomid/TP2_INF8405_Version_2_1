@@ -6,8 +6,6 @@ import android.view.View;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
-import com.google.android.gms.maps.model.Marker;
-
 public class ParticipateEventActivity extends EventActivity {
 
     @Override
@@ -50,7 +48,7 @@ public class ParticipateEventActivity extends EventActivity {
         show_Participate_Btns();
         setUpRadioGroup();
         updateMeetingChanges();
-        showPlace(meetingEvent.getFinalPlace().retrieveMarker());
+        showPlace(meetingEvent.getFinalPlace());
     }
 
     @Override
@@ -66,7 +64,12 @@ public class ParticipateEventActivity extends EventActivity {
     }
 
     @Override
-    protected void showPlace(Marker marker){
+    protected void showAllPlaces(){
+
+    }
+
+    @Override
+    protected void showPlace(MyMarker marker){
         super.showPlace(marker);
         showRating();
         showAverage(current_place_event);

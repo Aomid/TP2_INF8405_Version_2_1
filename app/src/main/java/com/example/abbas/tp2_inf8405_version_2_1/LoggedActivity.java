@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -35,6 +36,16 @@ public class LoggedActivity extends AppCompatActivity {
         GpsTracker.getInstance();
     }
 
+
+    protected void initAppbar(){
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        // Enable the Up button
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        Log.d("Franck", "Add Retrieve Event Request");
+    }
+
     public void updateLocation(Location location) {
         UserProfile.getInstance().setLatitude(location.getLatitude());
         UserProfile.getInstance().setLongitude(location.getLongitude());
@@ -52,7 +63,7 @@ public class LoggedActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.appbargroup, menu);
+        getMenuInflater().inflate(R.menu.appbar_menu_choice, menu);
         return true;
     }
 

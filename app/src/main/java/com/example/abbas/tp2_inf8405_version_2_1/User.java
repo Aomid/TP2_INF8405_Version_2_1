@@ -11,7 +11,7 @@ import com.google.firebase.database.ValueEventListener;
  * Created by Abbas on 3/13/2017.
  */
 
-public class User implements  MyMarker{
+public class User implements MyMarker {
     // Identifiant de l'utilisateur
     public String emailString;
     public String passString;
@@ -19,12 +19,34 @@ public class User implements  MyMarker{
     @Exclude
     public Marker marker;
 
+    @Exclude
+    private String icon;
     public void setMarkerType(MarkerType markerType) {
         this.markerType = markerType;
     }
 
+
+    @Override
+    @Exclude
+    public String getName() {
+        return emailString;
+    }
+
+    @Override
+    @Exclude
+    public String getDescription() {
+        return "Last update : " + lastUpdate;
+    }
+
+    @Override
+    @Exclude
+    public String getIcon() {
+        return profileImage;
+    }
+
     @Exclude
     MarkerType markerType = MarkerType.USER;
+
     @Exclude
     public ValueEventListener valueListener;
 
@@ -110,6 +132,11 @@ public class User implements  MyMarker{
     }
 
     @Override
+    public boolean isLocationAvailable() {
+        return latitude!= null && longitude != null;
+    }
+
+    @Override
     public MarkerOptions provideMarkerOptions() {
          return new MarkerOptions()
                 .position(new LatLng(latitude, longitude))
@@ -136,6 +163,7 @@ public class User implements  MyMarker{
     }
 
     @Override
+    @Exclude
     public MarkerType getMarkerType() {
         return markerType;
     }

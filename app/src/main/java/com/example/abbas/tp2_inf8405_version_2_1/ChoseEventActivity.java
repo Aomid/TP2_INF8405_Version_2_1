@@ -9,8 +9,6 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
-import com.google.android.gms.maps.model.Marker;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -60,7 +58,7 @@ public class ChoseEventActivity extends EventActivity {
     }
 
     @Override
-    protected void showPlace(Marker marker){
+    protected void showPlace(MyMarker marker){
         super.showPlace(marker);
         showRating();
     }

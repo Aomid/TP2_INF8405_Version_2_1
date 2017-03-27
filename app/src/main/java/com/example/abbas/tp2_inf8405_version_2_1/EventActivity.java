@@ -6,15 +6,17 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -25,6 +27,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import java.util.Collection;
 
 public class EventActivity extends LoggedActivity
         implements OnMapReadyCallback,
@@ -63,14 +67,11 @@ public class EventActivity extends LoggedActivity
         }
     }
 
-    protected void showPlace(Marker marker) {
+    protected void showPlace(MyMarker marker) {
         if(marker == null){
-            Log.d("Franck","Merker null");
+            Log.d("Franck","Place null");
         }
-        if(marker.getTag()== null){
-            Log.d("Franck","Tag null");
-        }
-        current_place_event = (EventPlace) marker.getTag();
+        current_place_event = (EventPlace) marker;
         placeName.setText(current_place_event.getName());
         placeDescription.setText(current_place_event.getDescription());
     }
@@ -90,11 +91,13 @@ public class EventActivity extends LoggedActivity
         setContentView(R.layout.meeting_global_layout);
     }
 
-    private void initAppbar(){
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        // Enable the Up button
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+    @Override
+    protected void initAppbar(){
+        super.initAppbar();
+        Bundle extras = getIntent().getExtras();
+        final String Meeting_Name = extras.getString("Meeting_Name");
+        getSupportActionBar().setSubtitle(Meeting_Name);
     }
 
     private void initLocalisation() {
@@ -128,6 +131,7 @@ public class EventActivity extends LoggedActivity
         myRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                removeMarkers();
                 removeUserListeners();
                 meetingEvent = dataSnapshot.getValue(MeetingEvent.class);
                 meetingEvent.setMeetingName(Meeting_Name);
@@ -146,6 +150,22 @@ public class EventActivity extends LoggedActivity
             }
         });
     }
+
+    private void removeMarkers() {
+        if (meetingEvent != null) {
+            removeMarkers(meetingEvent.getPlaces().values());
+            removeMarkers(meetingEvent.getMembers().values());
+        }
+    }
+
+   private void removeMarkers(Collection<? extends MyMarker> markers ){
+       for (MyMarker marker : markers){
+           if(marker.retrieveMarker() != null ) {
+                marker.retrieveMarker().remove();
+           }
+           marker.setMarker(null);
+       }
+   }
 
     private void addUserListeners() {
         Log.d("Franck", "add Listeners");
@@ -176,19 +196,66 @@ public class EventActivity extends LoggedActivity
                 if (!meetingEvent.getOrganizer().retrieveMarker().isVisible())
                     meetingEvent.getOrganizer().setMarker(map.addMarker(meetingEvent.provideMarkerOrganizer()));
             }
-            for (User user : meetingEvent.getMembers().values()){
-                if(user.retrieveMarker() == null && user.getLatitude()!= null && user.getLongitude()!=null){
-                    user.setMarker(map.addMarker(user.provideMarkerOptions()));
-                }
-            }
-            for (EventPlace ep : meetingEvent.getPlaces().values()) {
-                if (ep.retrieveMarker() == null && !ep.equals(meetingEvent.getFinalPlace())) {
-                    ep.setMarker(map.addMarker(ep.provideMarkerOptions()));
-                }
-            }
-
+            showAllUsers();
+            showAllPlaces();
         }else{
             Log.d("Franck", "map null");
+        }
+    }
+
+    protected void showAllPlaces() {
+        findViewById(R.id.layout_all_places).setVisibility(View.VISIBLE);
+        showList((LinearLayout) findViewById(R.id.layout_all_places_contents), meetingEvent.getPlaces().values());
+    }
+
+    protected void showAllUsers(){
+        showList((LinearLayout) findViewById(R.id.layout_all_users_contents), meetingEvent.getMembers().values());
+    }
+
+
+    protected void showList(LinearLayout ll,Collection< ? extends MyMarker> markers){
+        ll.removeAllViews();
+        ll.setVisibility(View.VISIBLE);
+        LayoutInflater li = LayoutInflater.from(this);
+        for (MyMarker ep : markers) {
+            LinearLayout child = (LinearLayout) li.inflate(R.layout.mini_place_layout, null);
+            child.setTag(ep);
+            showInList(child,ep);
+            if(ep.retrieveMarker() == null && ep.isLocationAvailable()){
+                ep.setMarker(map.addMarker(ep.provideMarkerOptions()));
+            }
+            child.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showMarker((MyMarker) v.getTag());
+                }
+            });
+            ll.addView(child);
+        }
+    }
+
+    protected void showInList(LinearLayout child, MyMarker ep) {
+        //ImageConverter.decodeInto(ep.getIcon(), ((ImageView) child.findViewById(R.id.mini_icon)));
+        Log.d("Franck",ep.getName() );
+        ((TextView)child.findViewById(R.id.mini_place_name)).setText(ep.getName());
+        ((TextView) child.findViewById(R.id.mini_description)).setText(ep.getDescription());
+        //ImageConverter.decodeInto(ep.getIcon(), ((ImageView) child.findViewById(R.id.mini_icon));
+    }
+
+    protected void showMarker(MyMarker marker) {
+        if(marker.retrieveMarker()!= null){
+            map.moveCamera(CameraUpdateFactory.newLatLng(marker.retrieveMarker().getPosition()));
+            marker.retrieveMarker().showInfoWindow();
+        }
+        switch (marker.getMarkerType()){
+            case USER: {
+                showUser(marker);
+                break;
+            }
+            case PLACE: {
+                showPlace(marker);
+                break;
+            }
         }
     }
 
@@ -307,6 +374,10 @@ public class EventActivity extends LoggedActivity
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
+        if(UserProfile.getInstance().isLocationAvailable())
+            map.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(UserProfile.getInstance().getLatitude(),UserProfile.getInstance().getLatitude())));
+        map.getUiSettings().setZoomControlsEnabled(true);
+        map.getUiSettings().setMapToolbarEnabled(false);
     }
 
 
@@ -315,21 +386,12 @@ public class EventActivity extends LoggedActivity
     public boolean onMarkerClick(Marker marker) {
         //Toast.makeText(EventActivity.this, "onMarkerClick", Toast.LENGTH_SHORT).show();
         //TODO if marker for Place show place in place meeting else User
-        switch (((MyMarker)marker.getTag()).getMarkerType()){
-            case USER: {
-                showUser(marker);
-                break;
-            }
-            case PLACE: {
-                showPlace(marker);
-                break;
-            }
-        }
+        showMarker((MyMarker) marker.getTag());
         return false;
     }
 
-    protected void showUser(Marker marker) {
-        User user = (User) marker.getTag();
+    protected void showUser(MyMarker marker) {
+        User user = (User) marker;
         placeName.setText(user.getEmailString());
         placeDescription.setText("");
     }

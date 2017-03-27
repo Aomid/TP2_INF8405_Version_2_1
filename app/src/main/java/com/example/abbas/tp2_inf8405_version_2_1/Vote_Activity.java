@@ -8,8 +8,6 @@ import android.util.Log;
 import android.widget.RatingBar;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.model.Marker;
-
 import static com.example.abbas.tp2_inf8405_version_2_1.MeetingEvent.Code.ELECTING_PLACE;
 
 public class Vote_Activity extends EventActivity {
@@ -38,13 +36,14 @@ public class Vote_Activity extends EventActivity {
         });
     }
 
+    /*
     @Override
     public boolean onMarkerClick(Marker marker) {
         Toast.makeText(Vote_Activity.this, "onMarkerClick", Toast.LENGTH_SHORT).show();
-        showPlace(marker);
+        showMarker((MyMarker)marker.getTag());
         return true;
     }
-
+*/
 
     protected void  showRating() {
         super.showRating();
@@ -107,7 +106,7 @@ public class Vote_Activity extends EventActivity {
 
 
     @Override
-    protected void showPlace(Marker marker){
+    protected void showPlace(MyMarker marker){
         super.showPlace(marker);
         showRating();
     }

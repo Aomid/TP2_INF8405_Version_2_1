@@ -9,6 +9,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 public interface MyMarker {
 
+    boolean isLocationAvailable();
+
     enum MarkerType {USER, PLACE, ELECTED_PLACE,ORGANIZER}
 
     MarkerOptions provideMarkerOptions();
@@ -16,4 +18,10 @@ public interface MyMarker {
     void setMarker(Marker marker);
     MarkerType getMarkerType();
     void setMarkerType(MarkerType markerType);
+    String getName();
+    String getDescription();
+    String getIcon();
+    /*
+    @Override
+    String toString();*/
 }

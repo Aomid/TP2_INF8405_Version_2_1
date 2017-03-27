@@ -10,7 +10,6 @@ import com.google.firebase.database.Exclude;
 
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 
@@ -20,7 +19,7 @@ import java.util.Observable;
 
 
 
-class MeetingEvent extends Observable implements MyMeetingMarkers{
+class MeetingEvent extends Observable {
     private String meetingName;
     private String description;
     private String encodedPhoto;
@@ -365,10 +364,6 @@ class MeetingEvent extends Observable implements MyMeetingMarkers{
         this.status = status;
     }
 
-    @Override
-    public List<MarkerOptions> provideMeetingMarkersOptions() {
-        return null;
-    }
 
     public MarkerOptions provideMarkerFinalPlace() {
         return new MarkerOptions()

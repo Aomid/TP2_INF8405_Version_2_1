@@ -13,8 +13,9 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical"
+        android:gravity="center"
         android:weightSum="6">
 
     <ImageView
@@ -38,13 +39,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="2"
+        android:gravity="center"
+        android:weightSum="2"
         android:paddingTop="5dp">
 
         <EditText
             android:id="@+id/meetingName"
             android:layout_width="wrap_content"
             android:layout_height="45dp"
-            android:layout_weight="1"
             android:hint="Meeting Name"
             android:textColor="@color/dark"
             android:textColorHint="@color/light_grey" />

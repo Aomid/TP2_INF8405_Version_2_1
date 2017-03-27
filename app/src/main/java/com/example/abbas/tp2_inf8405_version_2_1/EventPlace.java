@@ -167,6 +167,11 @@ public class EventPlace implements MyMarker, Comparable<EventPlace> {
     }
 
     @Override
+    public boolean isLocationAvailable() {
+        return latitude!= null && longitude != null;
+    }
+
+    @Override
     public MarkerOptions provideMarkerOptions() {
         return new MarkerOptions()
                 .position(new LatLng(latitude, longitude))

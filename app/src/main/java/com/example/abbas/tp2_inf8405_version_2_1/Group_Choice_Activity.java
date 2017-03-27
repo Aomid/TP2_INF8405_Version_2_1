@@ -35,6 +35,7 @@ public class Group_Choice_Activity extends LoggedActivity {
         Bitmap bit = BitmapFactory.decodeByteArray(decodedByteArray, 0, decodedByteArray.length);
         userpic.setRotation(-90);
         userpic.setImageBitmap(bit);
+        initAppbar();
     }
 
     public void groupManager(View view) {
